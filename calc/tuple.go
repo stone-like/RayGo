@@ -2,26 +2,21 @@ package calc
 
 import "math"
 
-type Tuple4 struct {
-	x float64
-	y float64
-	z float64
-	w float64
-}
+type Tuple4 [4]float64
 
 func (t Tuple4) Magnitude() float64 {
 
-	content := math.Pow(t.x, 2) + math.Pow(t.y, 2) + math.Pow(t.z, 2) + math.Pow(t.w, 2)
+	content := math.Pow(t[0], 2) + math.Pow(t[1], 2) + math.Pow(t[2], 2) + math.Pow(t[3], 2)
 	return math.Sqrt(content)
 }
 
 func (t Tuple4) Normalize() Tuple4 {
 	mag := t.Magnitude()
 	return Tuple4{
-		t.x / mag,
-		t.y / mag,
-		t.z / mag,
-		t.w / mag,
+		t[0] / mag,
+		t[1] / mag,
+		t[2] / mag,
+		t[3] / mag,
 	}
 }
 
@@ -40,52 +35,52 @@ func NewPoint(x, y, z float64) Tuple4 {
 //point+pointは第四成分が2になってしまうので未定義にした方がよい？
 func AddTuple(a, b Tuple4) Tuple4 {
 	//if a[3]+b[3] == 2 return emptyTuple4 or error
-	return Tuple4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w}
+	return Tuple4{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]}
 }
 
 //vector - pointは第四成分が-1となるので未定義
 func SubTuple(a, b Tuple4) Tuple4 {
 
-	return Tuple4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w}
+	return Tuple4{a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 }
 
 func NegTuple(a Tuple4) Tuple4 {
 	return Tuple4{
-		-a.x,
-		-a.y,
-		-a.z,
-		-a.w,
+		-a[0],
+		-a[1],
+		-a[2],
+		-a[3],
 	}
 }
 
 func MulTupleByScalar(s float64, a Tuple4) Tuple4 {
 	return Tuple4{
-		a.x * s,
-		a.y * s,
-		a.z * s,
-		a.w * s,
+		a[0] * s,
+		a[1] * s,
+		a[2] * s,
+		a[3] * s,
 	}
 }
 
 func DivTupleByScalar(s float64, a Tuple4) Tuple4 {
 	return Tuple4{
-		a.x / s,
-		a.y / s,
-		a.z / s,
-		a.w / s,
+		a[0] / s,
+		a[1] / s,
+		a[2] / s,
+		a[3] / s,
 	}
 }
 
 func DotTuple(a, b Tuple4) float64 {
-	return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w
+	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3]
 }
 
 //クロス積はa,bの順番が肝要
 func CrossTuple(a, b Tuple4) Tuple4 {
 
-	newX := a.y*b.z - a.z*b.y
-	newY := a.z*b.x - a.x*b.z
-	newZ := a.x*b.y - a.y*b.x
+	newX := a[1]*b[2] - a[2]*b[1]
+	newY := a[2]*b[0] - a[0]*b[2]
+	newZ := a[0]*b[1] - a[1]*b[0]
 	return NewVector(
 		newX, newY, newZ,
 	)
