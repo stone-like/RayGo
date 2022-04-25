@@ -24,7 +24,7 @@ func TestWrite(t *testing.T) {
 	c := NewCanvas(10, 20)
 
 	red := NewColor(1, 0, 0)
-	c.WritePixel(2, 3, red)
+	c.WritePixel(3, 2, red)
 
 	require.Equal(t, red, c.Pixels[2][3])
 
