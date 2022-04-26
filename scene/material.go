@@ -1,11 +1,11 @@
 package scene
 
 type Material struct {
-	color     Color
-	ambient   float64
-	diffuse   float64
-	specular  float64
-	shininess float64
+	Color     Color
+	Ambient   float64
+	Diffuse   float64
+	Specular  float64
+	Shininess float64
 }
 
 const (
@@ -18,20 +18,20 @@ const (
 
 func NewMaterial(color Color, ambient, diffuse, specular, shininess float64) Material {
 	return Material{
-		color:     color,
-		ambient:   ambient,
-		diffuse:   diffuse,
-		specular:  specular,
-		shininess: shininess,
+		Color:     color,
+		Ambient:   ambient,
+		Diffuse:   diffuse,
+		Specular:  specular,
+		Shininess: shininess,
 	}
 }
 
 func DefaultMaterial() Material {
 	return Material{
-		color:     NewColor(1, 1, 1),
-		ambient:   0.1,
-		diffuse:   0.9,
-		specular:  0.9,
-		shininess: 200.0,
+		Color:     NewColor(1, 1, 1),
+		Ambient:   0.1,
+		Diffuse:   0.9,
+		Specular:  0.9,
+		Shininess: 200.0,
 	}
 }

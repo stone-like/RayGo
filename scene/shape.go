@@ -7,6 +7,8 @@ import (
 
 type Shape interface {
 	Intersect(r Ray) (Intersections, error)
+	NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error)
+	GetMaterial() Material
 }
 
 type BaseShape struct {
@@ -38,23 +40,23 @@ func (b *BaseShape) SetMaterial(m Material) {
 }
 
 type Intersection struct {
-	time   float64
-	object Shape
+	Time   float64
+	Object Shape
 }
 
 type Intersections struct {
 	Intersections []*Intersection
-	count         int
+	Count         int
 }
 
 func AggregateIntersection(sections ...*Intersection) Intersections {
 
 	sort.Slice(sections, func(i, j int) bool {
-		return sections[i].time < sections[j].time
+		return sections[i].Time < sections[j].Time
 	})
 
 	return Intersections{
-		count:         len(sections),
+		Count:         len(sections),
 		Intersections: sections,
 	}
 
@@ -63,7 +65,7 @@ func AggregateIntersection(sections ...*Intersection) Intersections {
 //hitはintersectionsの中で最初の正のtimeをもつintersection
 func GenerateHit(intersections Intersections) *Intersection {
 	for _, intersection := range intersections.Intersections {
-		if intersection.time >= 0 {
+		if intersection.Time >= 0 {
 			return intersection
 		}
 	}

@@ -76,7 +76,7 @@ func Test_Sphere_Can_Set_Material(t *testing.T) {
 	s := NewSphere(1)
 
 	m := DefaultMaterial()
-	m.ambient = 1
+	m.Ambient = 1
 
 	s.SetMaterial(m)
 

@@ -42,11 +42,11 @@ func Test_Ray_Intersects_Sphere_At_TwoPoints(t *testing.T) {
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
 
-	require.Equal(t, 2, xs.count)
-	require.Equal(t, 4.0, xs.Intersections[0].time)
-	require.Equal(t, 6.0, xs.Intersections[1].time)
-	require.Equal(t, s, xs.Intersections[0].object)
-	require.Equal(t, s, xs.Intersections[1].object)
+	require.Equal(t, 2, xs.Count)
+	require.Equal(t, 4.0, xs.Intersections[0].Time)
+	require.Equal(t, 6.0, xs.Intersections[1].Time)
+	require.Equal(t, s, xs.Intersections[0].Object)
+	require.Equal(t, s, xs.Intersections[1].Object)
 }
 
 func Test_Ray_Intersects_Sphere_At_Tangent(t *testing.T) {
@@ -56,9 +56,9 @@ func Test_Ray_Intersects_Sphere_At_Tangent(t *testing.T) {
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
 
-	require.Equal(t, 2, xs.count)
-	require.Equal(t, 5.0, xs.Intersections[0].time)
-	require.Equal(t, 5.0, xs.Intersections[1].time)
+	require.Equal(t, 2, xs.Count)
+	require.Equal(t, 5.0, xs.Intersections[0].Time)
+	require.Equal(t, 5.0, xs.Intersections[1].Time)
 }
 
 func Test_Ray_Misses_Sphere(t *testing.T) {
@@ -67,7 +67,7 @@ func Test_Ray_Misses_Sphere(t *testing.T) {
 
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
-	require.Equal(t, 0, xs.count)
+	require.Equal(t, 0, xs.Count)
 	require.Equal(t, 0, len(xs.Intersections))
 }
 
@@ -78,9 +78,9 @@ func Test_Ray_Originates_Inside_Sphere(t *testing.T) {
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
 
-	require.Equal(t, 2, xs.count)
-	require.Equal(t, -1.0, xs.Intersections[0].time)
-	require.Equal(t, 1.0, xs.Intersections[1].time)
+	require.Equal(t, 2, xs.Count)
+	require.Equal(t, -1.0, xs.Intersections[0].Time)
+	require.Equal(t, 1.0, xs.Intersections[1].Time)
 }
 
 func Test_Ray_Originates_Behind_Sphere(t *testing.T) {
@@ -90,9 +90,9 @@ func Test_Ray_Originates_Behind_Sphere(t *testing.T) {
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
 
-	require.Equal(t, 2, xs.count)
-	require.Equal(t, -6.0, xs.Intersections[0].time)
-	require.Equal(t, -4.0, xs.Intersections[1].time)
+	require.Equal(t, 2, xs.Count)
+	require.Equal(t, -6.0, xs.Intersections[0].Time)
+	require.Equal(t, -4.0, xs.Intersections[1].Time)
 }
 
 func Test_Aggregating_Intersections(t *testing.T) {
@@ -102,9 +102,9 @@ func Test_Aggregating_Intersections(t *testing.T) {
 
 	xs := AggregateIntersection(i1, i2)
 
-	require.Equal(t, 2, xs.count)
-	require.Equal(t, 1.0, xs.Intersections[0].time)
-	require.Equal(t, 2.0, xs.Intersections[1].time)
+	require.Equal(t, 2, xs.Count)
+	require.Equal(t, 1.0, xs.Intersections[0].Time)
+	require.Equal(t, 2.0, xs.Intersections[1].Time)
 
 }
 
@@ -169,9 +169,9 @@ func Test_Ray_Intersects_Scaling_Sphere(t *testing.T) {
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
 
-	require.Equal(t, 2, xs.count)
-	require.Equal(t, 3.0, xs.Intersections[0].time)
-	require.Equal(t, 7.0, xs.Intersections[1].time)
+	require.Equal(t, 2, xs.Count)
+	require.Equal(t, 3.0, xs.Intersections[0].Time)
+	require.Equal(t, 7.0, xs.Intersections[1].Time)
 }
 
 func Test_Ray_Intersects_Translated_Sphere(t *testing.T) {
@@ -183,6 +183,6 @@ func Test_Ray_Intersects_Translated_Sphere(t *testing.T) {
 	xs, err := s.Intersect(r)
 	require.Nil(t, err)
 
-	require.Equal(t, 0, xs.count)
+	require.Equal(t, 0, xs.Count)
 	require.Equal(t, 0, len(xs.Intersections))
 }

@@ -23,8 +23,8 @@ func NewSphere(r float64) Sphere {
 
 func (s Sphere) GetIntersection(time float64) *Intersection {
 	return &Intersection{
-		time:   time,
-		object: s,
+		Time:   time,
+		Object: s,
 	}
 }
 
@@ -71,17 +71,17 @@ func (s Sphere) Intersect(r Ray) (Intersections, error) {
 	t2 := ((-b + math.Sqrt(discriminant)) / (2 * a))
 
 	intersection1 := Intersection{
-		time:   t1,
-		object: s,
+		Time:   t1,
+		Object: s,
 	}
 
 	intersection2 := Intersection{
-		time:   t2,
-		object: s,
+		Time:   t2,
+		Object: s,
 	}
 
 	return Intersections{
-		count:         2,
+		Count:         2,
 		Intersections: []*Intersection{&intersection1, &intersection2},
 	}, nil
 }

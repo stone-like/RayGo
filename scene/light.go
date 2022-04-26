@@ -26,11 +26,11 @@ func NewLight(p calc.Tuple4, color Color) Light {
 //さすがにtuple絡みは関数じゃなくてメソッドを使ってChainさせた方が良さそうな感じ
 func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4) Color {
 
-	effective_color := m.color.Mul(l.Intensity).ToTuple4()
+	effective_color := m.Color.Mul(l.Intensity).ToTuple4()
 
 	light_vec := calc.SubTuple(l.Position, position).Normalize()
 
-	ambient := TupletoColor(calc.MulTupleByScalar(m.ambient, effective_color))
+	ambient := TupletoColor(calc.MulTupleByScalar(m.Ambient, effective_color))
 
 	light_dot_normal := calc.DotTuple(light_vec, normal_vec)
 
@@ -44,7 +44,7 @@ func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4) 
 		return ambient.Add(diffuse).Add(specular)
 	}
 
-	diffuse = TupletoColor(calc.MulTupleByScalar(light_dot_normal, calc.MulTupleByScalar(m.diffuse, effective_color)))
+	diffuse = TupletoColor(calc.MulTupleByScalar(light_dot_normal, calc.MulTupleByScalar(m.Diffuse, effective_color)))
 
 	reflect_vec := calc.Reflect(calc.NegTuple(light_vec), normal_vec)
 	refelect_dot_eye := calc.DotTuple(reflect_vec, eye_vec)
@@ -52,8 +52,8 @@ func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4) 
 	if refelect_dot_eye <= 0 {
 		specular = Black
 	} else {
-		factor := math.Pow(refelect_dot_eye, m.shininess)
-		specular = TupletoColor(calc.MulTupleByScalar(factor, calc.MulTupleByScalar(m.specular, l.Intensity.ToTuple4())))
+		factor := math.Pow(refelect_dot_eye, m.Shininess)
+		specular = TupletoColor(calc.MulTupleByScalar(factor, calc.MulTupleByScalar(m.Specular, l.Intensity.ToTuple4())))
 	}
 
 	return ambient.Add(diffuse).Add(specular)
