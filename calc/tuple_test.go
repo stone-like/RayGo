@@ -120,3 +120,16 @@ func TestCross(t *testing.T) {
 	require.Equal(t, NewVector(1, -2, 1), CrossTuple(b, a))
 
 }
+
+func TestReflect(t *testing.T) {
+	a := NewVector(1, -1, 0)
+	b := NewVector(0, 1, 0)
+	r := Reflect(a, b)
+	require.True(t, TupleCompare(NewVector(1, 1, 0), r))
+
+	a = NewVector(0, -1, 0)
+	b = NewVector(math.Sqrt(2)/2, math.Sqrt(2)/2, 0)
+	r = Reflect(a, b)
+	require.True(t, TupleCompare(NewVector(1, 0, 0), r))
+
+}

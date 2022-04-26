@@ -2,7 +2,6 @@ package calc
 
 import (
 	"math"
-	"rayGo/util"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -61,17 +60,6 @@ func Test_X_dir_Reflection_By_Scailing(t *testing.T) {
 	p := NewPoint(2, 3, 4)
 	target := NewPoint(-2, 3, 4)
 	require.Equal(t, target, trans.MulByTuple(p))
-}
-
-func TupleCompare(a, b Tuple4) bool {
-	for i := 0; i < 4; i++ {
-		ret := util.FloatEqual(a[i], b[i])
-		if ret == false {
-			return false
-		}
-	}
-
-	return true
 }
 
 func Test_Rotate_X(t *testing.T) {

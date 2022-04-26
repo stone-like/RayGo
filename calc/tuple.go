@@ -1,8 +1,22 @@
 package calc
 
-import "math"
+import (
+	"math"
+	"rayGo/util"
+)
 
 type Tuple4 [4]float64
+
+func TupleCompare(a, b Tuple4) bool {
+	for i := 0; i < 4; i++ {
+		ret := util.FloatEqual(a[i], b[i])
+		if ret == false {
+			return false
+		}
+	}
+
+	return true
+}
 
 func (t Tuple4) Magnitude() float64 {
 
@@ -73,6 +87,13 @@ func DivTupleByScalar(s float64, a Tuple4) Tuple4 {
 
 func DotTuple(a, b Tuple4) float64 {
 	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3]
+}
+
+//in,normalともにVector
+func Reflect(in, normal Tuple4) Tuple4 {
+
+	temp := MulTupleByScalar(DotTuple(in, normal), MulTupleByScalar(2, normal))
+	return SubTuple(in, temp)
 }
 
 //クロス積はa,bの順番が肝要

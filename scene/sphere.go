@@ -28,6 +28,23 @@ func (s Sphere) GetIntersection(time float64) *Intersection {
 	}
 }
 
+//sphere自体を動かす代わりにNormalを動かして計算
+func (s Sphere) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
+	invTrans, err := s.GetTransform().Inverse()
+	if err != nil {
+		return calc.Tuple4{}, err
+	}
+
+	objectPoint := invTrans.MulByTuple(worldPoint)
+	objectNormal := calc.SubTuple(objectPoint, calc.NewPoint(0, 0, 0))
+
+	//objectNormal -> worldNormalでなぜinverse->TransposeがいるかはPDFに記載
+	worldNormal := invTrans.Transpose().MulByTuple(objectNormal)
+	worldNormal[3] = 0
+
+	return worldNormal.Normalize(), nil
+}
+
 func (s Sphere) Intersect(r Ray) (Intersections, error) {
 	//spehereの代わりにrayをTransform
 	invTrans, err := s.GetTransform().Inverse()

@@ -11,11 +11,13 @@ type Shape interface {
 
 type BaseShape struct {
 	Transform calc.Mat4x4
+	Material  Material
 }
 
 func NewBaseShape() *BaseShape {
 	return &BaseShape{
 		Transform: calc.Ident4x4,
+		Material:  DefaultMaterial(),
 	}
 }
 
@@ -25,6 +27,14 @@ func (b *BaseShape) GetTransform() calc.Mat4x4 {
 
 func (b *BaseShape) SetTransform(mat calc.Mat4x4) {
 	b.Transform = mat
+}
+
+func (b *BaseShape) GetMaterial() Material {
+	return b.Material
+}
+
+func (b *BaseShape) SetMaterial(m Material) {
+	b.Material = m
 }
 
 type Intersection struct {
