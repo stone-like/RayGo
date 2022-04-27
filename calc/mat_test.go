@@ -1,53 +1,10 @@
 package calc
 
 import (
-	"rayGo/util"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
-
-func Mat4x4Compare(a, b Mat4x4) bool {
-
-	for i := 0; i < len(a); i++ {
-		for j := 0; j < len(a[0]); j++ {
-			ret := util.FloatEqual(a[i][j], b[i][j])
-
-			if ret == false {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func Mat3x3Compare(a, b Mat3x3) bool {
-
-	for i := 0; i < len(a); i++ {
-		for j := 0; j < len(a[0]); j++ {
-			ret := util.FloatEqual(a[i][j], b[i][j])
-
-			if ret == false {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func Mat2x2Compare(a, b Mat2x2) bool {
-
-	for i := 0; i < len(a); i++ {
-		for j := 0; j < len(a[0]); j++ {
-			ret := util.FloatEqual(a[i][j], b[i][j])
-
-			if ret == false {
-				return false
-			}
-		}
-	}
-	return true
-}
 
 func TestMulMat(t *testing.T) {
 	a := Mat4x4{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}

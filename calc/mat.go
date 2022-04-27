@@ -3,6 +3,7 @@ package calc
 import (
 	"errors"
 	"math"
+	"rayGo/util"
 )
 
 type Mat4x4 [4][4]float64
@@ -179,4 +180,46 @@ type Mat2x2 [2][2]float64
 
 func (m Mat2x2) Det() float64 {
 	return m[0][0]*m[1][1] - m[0][1]*m[1][0]
+}
+
+func Mat4x4Compare(a, b Mat4x4) bool {
+
+	for i := 0; i < len(a); i++ {
+		for j := 0; j < len(a[0]); j++ {
+			ret := util.FloatEqual(a[i][j], b[i][j])
+
+			if ret == false {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func Mat3x3Compare(a, b Mat3x3) bool {
+
+	for i := 0; i < len(a); i++ {
+		for j := 0; j < len(a[0]); j++ {
+			ret := util.FloatEqual(a[i][j], b[i][j])
+
+			if ret == false {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func Mat2x2Compare(a, b Mat2x2) bool {
+
+	for i := 0; i < len(a); i++ {
+		for j := 0; j < len(a[0]); j++ {
+			ret := util.FloatEqual(a[i][j], b[i][j])
+
+			if ret == false {
+				return false
+			}
+		}
+	}
+	return true
 }

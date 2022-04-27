@@ -73,6 +73,28 @@ func (w World) ColorAt(ray Ray) (Color, error) {
 
 }
 
+func (w World) Render(camera Camera) (*Canvas, error) {
+	canvas := NewCanvas(int(camera.VSize), int(camera.HSize))
+
+	for y := 0; y < canvas.Height; y++ {
+		for x := 0; x < canvas.Width; x++ {
+			ray, err := camera.RayForPixel(float64(x), float64(y))
+			if err != nil {
+				return nil, err
+			}
+
+			color, err := w.ColorAt(ray)
+			if err != nil {
+				return nil, err
+			}
+
+			canvas.WritePixel(x, y, color)
+		}
+	}
+
+	return canvas, nil
+}
+
 func DefaultWorld() World {
 	light := (NewLight(calc.NewPoint(-10, 10, -10), NewColor(1, 1, 1)))
 
