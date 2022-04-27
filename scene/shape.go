@@ -9,6 +9,7 @@ type Shape interface {
 	Intersect(r Ray) (Intersections, error)
 	NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error)
 	GetMaterial() Material
+	SetMaterial(m Material)
 }
 
 type BaseShape struct {
@@ -72,4 +73,43 @@ func GenerateHit(intersections Intersections) *Intersection {
 
 	//正のtimeのintersectionがなかったらnil
 	return nil
+}
+
+type PreComps struct {
+	Time        float64
+	Object      Shape
+	RayPoint    calc.Tuple4
+	EyeVec      calc.Tuple4
+	NormalVec   calc.Tuple4
+	IsRayInside bool
+}
+
+func PrepareComputations(intersection Intersection, ray Ray) (PreComps, error) {
+
+	t := intersection.Time
+	obj := intersection.Object
+	ray_point := ray.Position(t)
+	eye_vec := calc.NegTuple(ray.Direction)
+	normal_vec, err := obj.NormalAt(ray_point)
+
+	if err != nil {
+		return PreComps{}, err
+	}
+
+	var IsRayInside bool
+
+	//rayのOriginがObjectのInsideにあるとき
+	if calc.DotTuple(normal_vec, eye_vec) < 0 {
+		IsRayInside = true
+		normal_vec = calc.NegTuple(normal_vec)
+	}
+
+	return PreComps{
+		Time:        t,
+		Object:      obj,
+		RayPoint:    ray_point,
+		EyeVec:      eye_vec,
+		NormalVec:   normal_vec,
+		IsRayInside: IsRayInside,
+	}, nil
 }

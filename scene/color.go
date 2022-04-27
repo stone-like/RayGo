@@ -9,7 +9,7 @@ type Color struct {
 }
 
 var Black = NewColor(0, 0, 0)
-var White = NewColor(255, 255, 255)
+var White = NewColor(1, 1, 1)
 
 func NewColor(r, g, b float64) Color {
 	return Color{r, g, b}
