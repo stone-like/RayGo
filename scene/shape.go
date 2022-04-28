@@ -41,6 +41,38 @@ func (b *BaseShape) SetMaterial(m Material) {
 	b.Material = m
 }
 
+type CalcLocalNormal func(localPoint calc.Tuple4) calc.Tuple4
+
+//各shapeごとにnormalだったりintersectを求める方法が違うのでそこはfuncで引数経由で渡せばいい
+func (base *BaseShape) ShapeNormalAt(worldPoint calc.Tuple4, calcLocalNormal CalcLocalNormal) (calc.Tuple4, error) {
+	invTrans, err := base.GetTransform().Inverse()
+	if err != nil {
+		return calc.Tuple4{}, err
+	}
+
+	localPoint := invTrans.MulByTuple(worldPoint)
+	localNormal := calcLocalNormal(localPoint)
+
+	//objectNormal -> worldNormalでなぜinverse->TransposeがいるかはPDFに記載
+	worldNormal := invTrans.Transpose().MulByTuple(localNormal)
+	worldNormal[3] = 0
+
+	return worldNormal.Normalize(), nil
+}
+
+type CalcLocalIntersect func(localRay Ray) (Intersections, error)
+
+func (base *BaseShape) ShapeIntersect(r Ray, localIntersect CalcLocalIntersect) (Intersections, error) {
+	invTrans, err := base.GetTransform().Inverse()
+	if err != nil {
+		return Intersections{}, err
+	}
+
+	r = r.Transform(invTrans)
+
+	return localIntersect(r)
+}
+
 type Intersection struct {
 	Time   float64
 	Object Shape
