@@ -26,12 +26,17 @@ func NewLight(p calc.Tuple4, color Color) Light {
 //さすがにtuple絡みは関数じゃなくてメソッドを使ってChainさせた方が良さそうな感じ
 
 //light_dot_normalがepsilon(小数点第五位の1のずれ)を超えてずれてしまっている
-func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4) Color {
+func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4, inShadow bool) Color {
 
 	effective_color := m.Color.Mul(l.Intensity).ToTuple4()
 
 	light_vec := calc.SubTuple(l.Position, position).Normalize()
 	ambient := TupletoColor(calc.MulTupleByScalar(m.Ambient, effective_color))
+
+	//shadowの中な場合lightの恩恵を受けられないのでdiffuseとspecularを無視
+	if inShadow {
+		return ambient
+	}
 
 	light_dot_normal := calc.DotTuple(light_vec, normal_vec)
 

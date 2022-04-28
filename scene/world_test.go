@@ -2,6 +2,7 @@ package scene
 
 import (
 	"rayGo/calc"
+	"rayGo/util"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -30,7 +31,7 @@ func Test_PreComputing_When_Ray_Occurs_Outside_Object(t *testing.T) {
 
 	i := CreateIntersection(4, shape)
 
-	comps, err := PrepareComputations(i, r)
+	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 
 	require.Equal(t, i.Time, comps.Time)
@@ -48,7 +49,7 @@ func Test_PreComputing_When_Ray_Occurs_Inside_Object(t *testing.T) {
 
 	i := CreateIntersection(1, shape)
 
-	comps, err := PrepareComputations(i, r)
+	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 
 	require.Equal(t, calc.NewPoint(0, 0, 1), comps.RayPoint)
@@ -66,10 +67,11 @@ func Test_Shading_Intersection(t *testing.T) {
 	shape := w.Objects[0]
 	i := CreateIntersection(4, shape)
 
-	comps, err := PrepareComputations(i, r)
+	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 
-	c := w.ShadeHit(comps)
+	c, err := w.ShadeHit(comps)
+	require.Nil(t, err)
 
 	require.True(t, colorCompare(NewColor(0.38066, 0.47583, 0.2855), c))
 
@@ -83,10 +85,11 @@ func Test_Shading_Intersection_When_Ray_Is_Inside(t *testing.T) {
 	shape := w.Objects[1]
 	i := CreateIntersection(0.5, shape)
 
-	comps, err := PrepareComputations(i, r)
+	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 
-	c := w.ShadeHit(comps)
+	c, err := w.ShadeHit(comps)
+	require.Nil(t, err)
 
 	require.True(t, colorCompare(NewColor(0.90498, 0.90498, 0.90498), c))
 
@@ -134,4 +137,77 @@ func Test_Color_At_With_Intersection_Behind_Ray(t *testing.T) {
 	require.Nil(t, err)
 	require.True(t, colorCompare(inner.GetMaterial().Color, c))
 
+}
+
+func TestIsShadowed(t *testing.T) {
+	//pointを作って原点からR:1のsphereと-10, 10, -10にある光源という状況でpointが陰になるかをテスト
+
+	w := DefaultWorld()
+	for _, target := range []struct {
+		title    string
+		p        calc.Tuple4
+		isShadow bool
+	}{
+		{
+			"no shadow when object does not block",
+			calc.NewPoint(0, 10, 0),
+			false,
+		},
+		{
+			"shadow when object is between point and light",
+			calc.NewPoint(10, -10, 10),
+			true,
+		},
+		{
+			"no shadow when object is behind light",
+			calc.NewPoint(-20, 20, -20),
+			false,
+		},
+		{
+			"no shadow when object is behind point",
+			calc.NewPoint(-2, 2, -2),
+			false,
+		},
+	} {
+		t.Run(target.title, func(t *testing.T) {
+
+			isShadow, err := w.IsShadowed(target.p)
+			require.Nil(t, err)
+			require.Equal(t, target.isShadow, isShadow)
+		})
+	}
+}
+
+func Test_Hit_OverPoint(t *testing.T) {
+	ray := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
+	shape := NewSphere(1)
+	shape.SetTransform(calc.NewTranslation(0, 0, 1))
+	i := CreateIntersection(5, shape)
+	comps, err := PrepareComputations(i, ray, Intersections{})
+	require.Nil(t, err)
+
+	require.True(t, comps.OverPoint[2] < -(util.EPSILON/2))
+	require.True(t, comps.RayPoint[2] > comps.OverPoint[2])
+
+}
+
+func Test_ShadeHit_When_Given_IsShadow_is_True(t *testing.T) {
+	w := DefaultWorld()
+
+	w.Light = NewLight(calc.NewPoint(0, 0, -10), NewColor(1, 1, 1))
+	s1 := NewSphere(1)
+	s2 := NewSphere(1)
+	s2.SetTransform(calc.NewTranslation(0, 0, 10))
+
+	w.Objects = append(w.Objects, s1, s2)
+
+	ray := NewRay(calc.NewPoint(0, 0, 5), calc.NewVector(0, 0, 1))
+	i := CreateIntersection(4, s2)
+
+	comps, err := PrepareComputations(i, ray, Intersections{})
+	require.Nil(t, err)
+
+	c, err := w.ShadeHit(comps)
+	require.Nil(t, err)
+	require.True(t, colorCompare(NewColor(0.1, 0.1, 0.1), c))
 }

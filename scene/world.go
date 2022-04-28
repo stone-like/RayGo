@@ -42,13 +42,44 @@ func (w World) Intersect(r Ray) (Intersections, error) {
 	}, nil
 }
 
-func (w World) ShadeHit(comps PreComps) Color {
+//rayとobjectの交点とずらしたOverPointを使わないと自分自身が自分と重なっている点として判定されてしまう
+func (w World) ShadeHit(comps PreComps) (Color, error) {
+
+	in_shadow, err := w.IsShadowed(comps.OverPoint)
+	if err != nil {
+		return Color{}, err
+	}
 	return w.Light.Lighting(
 		comps.Object.GetMaterial(),
 		comps.RayPoint,
 		comps.EyeVec,
 		comps.NormalVec,
-	)
+		in_shadow,
+	), nil
+}
+
+//光源とpointを結んでRayをつくってRayとWorldのIntersectionを求める
+//hitがあり、tがdistanceより小さければpointはShadow
+//それ以外はShadowでない
+func (w World) IsShadowed(point calc.Tuple4) (bool, error) {
+
+	v := calc.SubTuple(w.Light.Position, point)
+	distance := v.Magnitude()
+	direction := v.Normalize()
+
+	ray := NewRay(point, direction)
+	xs, err := w.Intersect(ray)
+	if err != nil {
+		return false, err
+	}
+
+	hit := GenerateHit(xs)
+
+	if hit != nil && hit.Time < distance {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func (w World) ColorAt(ray Ray) (Color, error) {
@@ -63,13 +94,13 @@ func (w World) ColorAt(ray Ray) (Color, error) {
 		return Black, nil
 	}
 
-	comps, err := PrepareComputations(*hit, ray)
+	comps, err := PrepareComputations(*hit, ray, xs)
 
 	if err != nil {
 		return Color{}, err
 	}
 
-	return w.ShadeHit(comps), nil
+	return w.ShadeHit(comps)
 
 }
 

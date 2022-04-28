@@ -2,6 +2,7 @@ package scene
 
 import (
 	"rayGo/calc"
+	"rayGo/util"
 	"sort"
 )
 
@@ -79,12 +80,13 @@ type PreComps struct {
 	Time        float64
 	Object      Shape
 	RayPoint    calc.Tuple4
+	OverPoint   calc.Tuple4
 	EyeVec      calc.Tuple4
 	NormalVec   calc.Tuple4
 	IsRayInside bool
 }
 
-func PrepareComputations(intersection Intersection, ray Ray) (PreComps, error) {
+func PrepareComputations(intersection Intersection, ray Ray, xs Intersections) (PreComps, error) {
 
 	t := intersection.Time
 	obj := intersection.Object
@@ -104,10 +106,14 @@ func PrepareComputations(intersection Intersection, ray Ray) (PreComps, error) {
 		normal_vec = calc.NegTuple(normal_vec)
 	}
 
+	//shadow用にOverPointを作る,normal方向に微小に↓にずらしたものがoverpoint
+	over_point := calc.AddTuple(ray_point, calc.MulTupleByScalar(util.EPSILON, normal_vec))
+
 	return PreComps{
 		Time:        t,
 		Object:      obj,
 		RayPoint:    ray_point,
+		OverPoint:   over_point,
 		EyeVec:      eye_vec,
 		NormalVec:   normal_vec,
 		IsRayInside: IsRayInside,
