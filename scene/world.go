@@ -55,7 +55,8 @@ func (w World) ShadeHit(comps PreComps) (Color, error) {
 		comps.EyeVec,
 		comps.NormalVec,
 		in_shadow,
-	), nil
+		comps.Object,
+	)
 }
 
 //光源とpointを結んでRayをつくってRayとWorldのIntersectionを求める

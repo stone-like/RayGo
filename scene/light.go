@@ -26,16 +26,21 @@ func NewLight(p calc.Tuple4, color Color) Light {
 //さすがにtuple絡みは関数じゃなくてメソッドを使ってChainさせた方が良さそうな感じ
 
 //light_dot_normalがepsilon(小数点第五位の1のずれ)を超えてずれてしまっている
-func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4, inShadow bool) Color {
+func (l *Light) Lighting(m *Material, position, eye_vec, normal_vec calc.Tuple4, inShadow bool, shape Shape) (Color, error) {
 
-	effective_color := m.Color.Mul(l.Intensity).ToTuple4()
+	materialColor, err := m.GetMaterialColor(position, shape)
+	if err != nil {
+		return Color{}, err
+	}
+
+	effective_color := materialColor.Mul(l.Intensity).ToTuple4()
 
 	light_vec := calc.SubTuple(l.Position, position).Normalize()
 	ambient := TupletoColor(calc.MulTupleByScalar(m.Ambient, effective_color))
 
 	//shadowの中な場合lightの恩恵を受けられないのでdiffuseとspecularを無視
 	if inShadow {
-		return ambient
+		return ambient, nil
 	}
 
 	light_dot_normal := calc.DotTuple(light_vec, normal_vec)
@@ -47,7 +52,7 @@ func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4, 
 		diffuse = Black
 		specular = Black
 
-		return ambient.Add(diffuse).Add(specular)
+		return ambient.Add(diffuse).Add(specular), nil
 	}
 
 	diffuse = TupletoColor(calc.MulTupleByScalar(light_dot_normal, calc.MulTupleByScalar(m.Diffuse, effective_color)))
@@ -62,5 +67,5 @@ func (l *Light) Lighting(m Material, position, eye_vec, normal_vec calc.Tuple4, 
 		specular = TupletoColor(calc.MulTupleByScalar(factor, calc.MulTupleByScalar(m.Specular, l.Intensity.ToTuple4())))
 	}
 
-	return ambient.Add(diffuse).Add(specular)
+	return ambient.Add(diffuse).Add(specular), nil
 }

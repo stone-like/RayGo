@@ -47,3 +47,11 @@ func (p Plane) calcLocalIntersect(r Ray) (Intersections, error) {
 func (p Plane) Intersect(r Ray) (Intersections, error) {
 	return p.ShapeIntersect(r, p.calcLocalIntersect)
 }
+
+func (p Plane) GetMaterial() *Material {
+	return p.Material
+}
+
+func (p Plane) SetMaterial(m *Material) {
+	p.Material = m
+}

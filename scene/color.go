@@ -11,6 +11,15 @@ type Color struct {
 var Black = NewColor(0, 0, 0)
 var White = NewColor(1, 1, 1)
 
+var Red = NewColor(1, 0, 0)
+var Green = NewColor(0, 1, 0)
+var Blue = NewColor(0, 0, 1)
+
+var MizuIro = NewColor(0.615, 0.8, 0.878)
+var FukaMidori = NewColor(0.0117, 0.309, 0.2705)
+var Rose = NewColor(0.9058, 0.33333, 0.4156)
+var Orange = NewColor(1, 0.29411, 0.137254)
+
 func NewColor(r, g, b float64) Color {
 	return Color{r, g, b}
 }

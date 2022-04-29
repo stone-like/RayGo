@@ -54,12 +54,15 @@ func BuildLightTestSturct() []struct {
 }
 
 func TestLighting(t *testing.T) {
+	s := NewSphere(1)
 	m := DefaultMaterial()
+	s.SetMaterial(m)
 	pos := calc.NewPoint(0, 0, 0)
 	in_shadow := false
 	for _, target := range BuildLightTestSturct() {
 
-		res := target.light.Lighting(m, pos, target.eye_vec, target.normal_vec, in_shadow)
+		res, err := target.light.Lighting(m, pos, target.eye_vec, target.normal_vec, in_shadow, s)
+		require.Nil(t, err)
 
 		ret := colorCompare(target.ans, res)
 		if ret == false {
@@ -75,10 +78,40 @@ func Test_Ignore_Diffuse_And_Specular_When_in_Shadow(t *testing.T) {
 	light := NewLight(calc.NewPoint(0, 0, -10), NewColor(1, 1, 1))
 	in_shadow := true
 
+	s := NewSphere(1)
 	m := DefaultMaterial()
+	s.SetMaterial(m)
+
 	pos := calc.NewPoint(0, 0, 0)
-	res := light.Lighting(m, pos, eye_vec, normal_vec, in_shadow)
+	res, err := light.Lighting(m, pos, eye_vec, normal_vec, in_shadow, s)
+	require.Nil(t, err)
 
 	require.True(t, colorCompare(NewColor(0.1, 0.1, 0.1), res))
+
+}
+
+func Test_Lighting_with_Pattern(t *testing.T) {
+	m := DefaultMaterial()
+	m.SetPattern(NewStripePattern(White, Black))
+	m.Ambient = 1
+	m.Diffuse = 0
+	m.Specular = 0
+
+	s := NewSphere(1)
+	s.SetMaterial(m)
+
+	eye_vec := calc.NewVector(0, 0, -1)
+	normal_vec := calc.NewVector(0, 0, -1)
+
+	light := NewLight(calc.NewPoint(0, 0, -10), NewColor(1, 1, 1))
+
+	c1, err := light.Lighting(m, calc.NewPoint(0.9, 0, 0), eye_vec, normal_vec, false, s)
+	require.Nil(t, err)
+
+	c2, err := light.Lighting(m, calc.NewPoint(1.1, 0, 0), eye_vec, normal_vec, false, s)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(White, c1))
+	require.True(t, colorCompare(Black, c2))
 
 }

@@ -73,6 +73,14 @@ func (s Sphere) Intersect(r Ray) (Intersections, error) {
 	return s.ShapeIntersect(r, s.calcLocalIntersect)
 }
 
+func (s Sphere) GetMaterial() *Material {
+	return s.Material
+}
+
+func (s Sphere) SetMaterial(m *Material) {
+	s.Material = m
+}
+
 // //sphere自体を動かす代わりにNormalを動かして計算
 // func (s Sphere) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
 // 	invTrans, err := s.GetTransform().Inverse()

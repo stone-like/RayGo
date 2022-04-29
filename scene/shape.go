@@ -9,13 +9,15 @@ import (
 type Shape interface {
 	Intersect(r Ray) (Intersections, error)
 	NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error)
-	GetMaterial() Material
-	SetMaterial(m Material)
+	GetMaterial() *Material
+	SetMaterial(m *Material)
+	GetTransform() calc.Mat4x4
+	SetTransform(mat calc.Mat4x4)
 }
 
 type BaseShape struct {
 	Transform calc.Mat4x4
-	Material  Material
+	Material  *Material
 }
 
 func NewBaseShape() *BaseShape {
@@ -31,14 +33,6 @@ func (b *BaseShape) GetTransform() calc.Mat4x4 {
 
 func (b *BaseShape) SetTransform(mat calc.Mat4x4) {
 	b.Transform = mat
-}
-
-func (b *BaseShape) GetMaterial() Material {
-	return b.Material
-}
-
-func (b *BaseShape) SetMaterial(m Material) {
-	b.Material = m
 }
 
 type CalcLocalNormal func(localPoint calc.Tuple4) calc.Tuple4
