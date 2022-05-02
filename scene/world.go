@@ -118,7 +118,6 @@ func isFresnelAppliable(material *Material) bool {
 
 }
 
-//applyFreselがおかしい？ので修正するところから
 func (w *World) ApplyFresnel(comps PreComps, surface, reflected, refracted Color) Color {
 	if !isFresnelAppliable(comps.Object.GetMaterial()) {
 		return surface.Add(reflected).Add(refracted)

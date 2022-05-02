@@ -107,7 +107,6 @@ func findN1AndN2(xs Intersections, target Intersection) (N1, N2 float64) {
 	return
 }
 
-//normalの計算がおかしいっぽい？
 func PrepareComputations(intersection Intersection, ray Ray, xs Intersections) (PreComps, error) {
 
 	t := intersection.Time
