@@ -1,23 +1,30 @@
 package scene
 
 import (
+	"math"
 	"rayGo/calc"
 	"sort"
 )
+
+var DefaultRemaing = 5
 
 type World struct {
 	Light   Light
 	Objects []Shape
 }
 
-func NewWorld(light Light, objects ...Shape) World {
-	return World{
+func NewWorld(light Light, objects ...Shape) *World {
+	return &World{
 		Light:   light,
 		Objects: objects,
 	}
 }
 
-func (w World) Intersect(r Ray) (Intersections, error) {
+func (w *World) AddObjects(objects ...Shape) {
+	w.Objects = append(w.Objects, objects...)
+}
+
+func (w *World) Intersect(r Ray) (Intersections, error) {
 
 	count := 0
 	var sections []*Intersection
@@ -42,14 +49,99 @@ func (w World) Intersect(r Ray) (Intersections, error) {
 	}, nil
 }
 
+func (w *World) RefractedColor(comps PreComps, remainingReflection, remainingRefraction int) (Color, error) {
+	if remainingRefraction <= 0 {
+		return Black, nil
+	}
+
+	if comps.Object.GetMaterial().Transparency == 0 {
+		return Black, nil
+	}
+
+	n_ratio := comps.N1 / comps.N2
+	cos_i := calc.DotTuple(comps.EyeVec, comps.NormalVec)
+	sin2_t := math.Pow(n_ratio, 2) * (1 - math.Pow(cos_i, 2))
+	cos_t := math.Sqrt(1 - sin2_t)
+
+	if sin2_t >= 1 {
+		//Total Internal Reflection
+		return Black, nil
+	}
+
+	direction := calc.SubTuple(
+		calc.MulTupleByScalar(n_ratio*cos_i-cos_t, comps.NormalVec),
+		calc.MulTupleByScalar(n_ratio, comps.EyeVec),
+	)
+
+	refract_ray := NewRay(comps.UnderPoint, direction)
+	refract_color, err := w.ColorAt(refract_ray, remainingReflection, remainingRefraction-1)
+
+	if err != nil {
+		return Black, err
+	}
+
+	colorTuple := calc.MulTupleByScalar(
+		comps.Object.GetMaterial().Transparency,
+		refract_color.ToTuple4(),
+	)
+
+	return TupletoColor(colorTuple), nil
+}
+
+func (w *World) ReflectedColor(comps PreComps, remainingReflection, remainingRefraction int) (Color, error) {
+
+	if remainingReflection <= 0 {
+		return Black, nil
+	}
+
+	reflective := comps.Object.GetMaterial().Reflective
+	if reflective == 0 {
+		return Black, nil
+	}
+
+	reflect_ray := NewRay(comps.OverPoint, comps.ReflectVec)
+	color, err := w.ColorAt(reflect_ray, remainingReflection-1, remainingRefraction)
+	if err != nil {
+		return Color{}, err
+	}
+
+	colorTuple := color.ToTuple4()
+	return TupletoColor(calc.MulTupleByScalar(reflective, colorTuple)), nil
+}
+
+func isFresnelAppliable(material *Material) bool {
+	if material.Reflective > 0 && material.Transparency > 0 {
+		return true
+	}
+
+	return false
+
+}
+
+//applyFreselがおかしい？ので修正するところから
+func (w *World) ApplyFresnel(comps PreComps, surface, reflected, refracted Color) Color {
+	if !isFresnelAppliable(comps.Object.GetMaterial()) {
+		return surface.Add(reflected).Add(refracted)
+	}
+
+	reflectance := comps.ComputeSchlick()
+
+	appliedReflected := TupletoColor(calc.MulTupleByScalar(reflectance, reflected.ToTuple4()))
+	appliedRefracted := TupletoColor(calc.MulTupleByScalar(1-reflectance, refracted.ToTuple4()))
+
+	return surface.Add(appliedReflected).Add(appliedRefracted)
+
+}
+
 //rayとobjectの交点とずらしたOverPointを使わないと自分自身が自分と重なっている点として判定されてしまう
-func (w World) ShadeHit(comps PreComps) (Color, error) {
+func (w *World) ShadeHit(comps PreComps, remainingReflection, remainingRefraction int) (Color, error) {
 
 	in_shadow, err := w.IsShadowed(comps.OverPoint)
 	if err != nil {
 		return Color{}, err
 	}
-	return w.Light.Lighting(
+
+	sufaceColor, err := w.Light.Lighting(
 		comps.Object.GetMaterial(),
 		comps.RayPoint,
 		comps.EyeVec,
@@ -57,12 +149,28 @@ func (w World) ShadeHit(comps PreComps) (Color, error) {
 		in_shadow,
 		comps.Object,
 	)
+	if err != nil {
+		return Color{}, err
+	}
+
+	reflected, err := w.ReflectedColor(comps, remainingReflection, remainingRefraction)
+	if err != nil {
+		return Color{}, err
+	}
+
+	refracted, err := w.RefractedColor(comps, remainingReflection, remainingRefraction)
+	if err != nil {
+		return Color{}, err
+	}
+
+	return w.ApplyFresnel(comps, sufaceColor, reflected, refracted), nil
+
 }
 
 //光源とpointを結んでRayをつくってRayとWorldのIntersectionを求める
 //hitがあり、tがdistanceより小さければpointはShadow
 //それ以外はShadowでない
-func (w World) IsShadowed(point calc.Tuple4) (bool, error) {
+func (w *World) IsShadowed(point calc.Tuple4) (bool, error) {
 
 	v := calc.SubTuple(w.Light.Position, point)
 	distance := v.Magnitude()
@@ -83,7 +191,7 @@ func (w World) IsShadowed(point calc.Tuple4) (bool, error) {
 	return false, nil
 }
 
-func (w World) ColorAt(ray Ray) (Color, error) {
+func (w *World) ColorAt(ray Ray, remainingReflection, remainingRefraction int) (Color, error) {
 	xs, err := w.Intersect(ray)
 	if err != nil {
 		return Color{}, err
@@ -101,11 +209,11 @@ func (w World) ColorAt(ray Ray) (Color, error) {
 		return Color{}, err
 	}
 
-	return w.ShadeHit(comps)
+	return w.ShadeHit(comps, remainingReflection, remainingRefraction)
 
 }
 
-func (w World) Render(camera Camera) (*Canvas, error) {
+func (w *World) Render(camera Camera) (*Canvas, error) {
 	canvas := NewCanvas(int(camera.VSize), int(camera.HSize))
 
 	for y := 0; y < canvas.Height; y++ {
@@ -115,7 +223,7 @@ func (w World) Render(camera Camera) (*Canvas, error) {
 				return nil, err
 			}
 
-			color, err := w.ColorAt(ray)
+			color, err := w.ColorAt(ray, DefaultRemaing, DefaultRemaing)
 			if err != nil {
 				return nil, err
 			}
@@ -127,7 +235,7 @@ func (w World) Render(camera Camera) (*Canvas, error) {
 	return canvas, nil
 }
 
-func DefaultWorld() World {
+func DefaultWorld() *World {
 	light := (NewLight(calc.NewPoint(-10, 10, -10), NewColor(1, 1, 1)))
 
 	s1 := NewSphere(1)

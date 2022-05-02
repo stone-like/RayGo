@@ -82,3 +82,16 @@ func Test_Sphere_Can_Set_Material(t *testing.T) {
 
 	require.Equal(t, m, s.GetMaterial())
 }
+
+func Test_PreComputing_Reflection_Vector(t *testing.T) {
+	shape := NewPlane()
+
+	r := NewRay(calc.NewPoint(0, 1, -1), calc.NewVector(0, -math.Sqrt(2)/2, -math.Sqrt(2)/2))
+
+	i := Intersection{math.Sqrt(2), shape}
+
+	comps, err := PrepareComputations(i, r, Intersections{})
+
+	require.Nil(t, err)
+	require.True(t, calc.TupleCompare(calc.NewVector(0, math.Sqrt(2)/2, -math.Sqrt(2)/2), comps.ReflectVec))
+}

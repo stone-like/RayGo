@@ -16,4 +16,8 @@ func FloatEqual(a, b float64) bool {
 	return false
 }
 
+func SetEpsilon(num float64) {
+	EPSILON = num
+}
+
 var FloatComparer = cmp.Comparer(FloatEqual)

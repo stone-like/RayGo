@@ -59,7 +59,7 @@ func TestChap6(t *testing.T) {
 			}
 			eye_vec := calc.NegTuple(ray.Direction)
 
-			color := light.Lighting(hit.Object.GetMaterial(), point, eye_vec, normal_vec)
+			color, _ := light.Lighting(hit.Object.GetMaterial(), point, eye_vec, normal_vec, false, sphere)
 
 			canvas.WritePixel(x, y, color)
 

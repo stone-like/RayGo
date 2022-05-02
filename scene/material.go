@@ -3,12 +3,15 @@ package scene
 import "rayGo/calc"
 
 type Material struct {
-	Color     Color
-	Ambient   float64
-	Diffuse   float64
-	Specular  float64
-	Shininess float64
-	Pattern   Pattern
+	Color           Color
+	Ambient         float64
+	Diffuse         float64
+	Specular        float64
+	Shininess       float64
+	Pattern         Pattern
+	Reflective      float64
+	Transparency    float64
+	RefractiveIndex float64
 }
 
 const (
@@ -31,11 +34,12 @@ func NewMaterial(color Color, ambient, diffuse, specular, shininess float64) *Ma
 
 func DefaultMaterial() *Material {
 	return &Material{
-		Color:     NewColor(1, 1, 1),
-		Ambient:   0.1,
-		Diffuse:   0.9,
-		Specular:  0.9,
-		Shininess: 200.0,
+		Color:           NewColor(1, 1, 1),
+		Ambient:         0.1,
+		Diffuse:         0.9,
+		Specular:        0.9,
+		Shininess:       200.0,
+		RefractiveIndex: 1.0,
 	}
 }
 

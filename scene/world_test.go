@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"math"
 	"rayGo/calc"
 	"rayGo/util"
 	"testing"
@@ -70,7 +71,7 @@ func Test_Shading_Intersection(t *testing.T) {
 	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 
-	c, err := w.ShadeHit(comps)
+	c, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
 	require.Nil(t, err)
 
 	require.True(t, colorCompare(NewColor(0.38066, 0.47583, 0.2855), c))
@@ -88,7 +89,7 @@ func Test_Shading_Intersection_When_Ray_Is_Inside(t *testing.T) {
 	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 
-	c, err := w.ShadeHit(comps)
+	c, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
 	require.Nil(t, err)
 
 	require.True(t, colorCompare(NewColor(0.90498, 0.90498, 0.90498), c))
@@ -99,7 +100,7 @@ func Test_Color_At_When_Ray_Misses(t *testing.T) {
 	w := DefaultWorld()
 	r := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 1, 0))
 
-	c, err := w.ColorAt(r)
+	c, err := w.ColorAt(r, DefaultRemaing, DefaultRemaing)
 
 	require.Nil(t, err)
 	require.True(t, colorCompare(NewColor(0, 0, 0), c))
@@ -110,7 +111,7 @@ func Test_Color_At_When_Ray_Hits(t *testing.T) {
 	w := DefaultWorld()
 	r := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
 
-	c, err := w.ColorAt(r)
+	c, err := w.ColorAt(r, DefaultRemaing, DefaultRemaing)
 
 	require.Nil(t, err)
 	require.True(t, colorCompare(NewColor(0.38066, 0.47583, 0.2855), c))
@@ -132,7 +133,7 @@ func Test_Color_At_With_Intersection_Behind_Ray(t *testing.T) {
 
 	r := NewRay(calc.NewPoint(0, 0, 0.75), calc.NewVector(0, 0, -1))
 
-	c, err := w.ColorAt(r)
+	c, err := w.ColorAt(r, DefaultRemaing, DefaultRemaing)
 
 	require.Nil(t, err)
 	require.True(t, colorCompare(inner.GetMaterial().Color, c))
@@ -207,7 +208,373 @@ func Test_ShadeHit_When_Given_IsShadow_is_True(t *testing.T) {
 	comps, err := PrepareComputations(i, ray, Intersections{})
 	require.Nil(t, err)
 
-	c, err := w.ShadeHit(comps)
+	c, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
 	require.Nil(t, err)
 	require.True(t, colorCompare(NewColor(0.1, 0.1, 0.1), c))
+}
+
+func Test_Reflected_Color_For_NonReflective_Material(t *testing.T) {
+	w := DefaultWorld()
+	r := NewRay(calc.NewPoint(0, 0, 0), calc.NewVector(0, 0, 1))
+
+	shape := w.Objects[1]
+	m := shape.GetMaterial()
+	m.Ambient = 1
+	shape.SetMaterial(m)
+
+	i := Intersection{1, shape}
+	comps, err := PrepareComputations(i, r, Intersections{})
+	require.Nil(t, err)
+	color, err := w.ReflectedColor(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(NewColor(0, 0, 0), color))
+}
+
+func Test_Reflected_Color_For_Reflective_Material(t *testing.T) {
+	w := DefaultWorld()
+	r := NewRay(calc.NewPoint(0, 0, -3), calc.NewVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
+
+	shape := NewPlane()
+	m := shape.GetMaterial()
+	m.Reflective = 0.5
+	shape.SetMaterial(m)
+	shape.SetTransform(calc.NewTranslation(0, -1, 0))
+
+	i := Intersection{math.Sqrt(2), shape}
+	comps, err := PrepareComputations(i, r, Intersections{})
+	require.Nil(t, err)
+	color, err := w.ReflectedColor(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	util.SetEpsilon(0.0001)
+	defer util.SetEpsilon(util.EPSILON)
+	require.True(t, colorCompare(NewColor(0.19032, 0.2379, 0.14274), color))
+
+}
+
+func Test_Shade_Hit_For_Reflective_Material(t *testing.T) {
+	w := DefaultWorld()
+	r := NewRay(calc.NewPoint(0, 0, -3), calc.NewVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
+
+	shape := NewPlane()
+	m := shape.GetMaterial()
+	m.Reflective = 0.5
+	shape.SetMaterial(m)
+	shape.SetTransform(calc.NewTranslation(0, -1, 0))
+
+	i := Intersection{math.Sqrt(2), shape}
+	comps, err := PrepareComputations(i, r, Intersections{})
+	require.Nil(t, err)
+	color, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	util.SetEpsilon(0.0001)
+	defer util.SetEpsilon(util.EPSILON)
+	require.True(t, colorCompare(NewColor(0.87677, 0.92436, 0.82918), color))
+
+}
+
+func Test_Avoid_Infinite_Recursion_For_Reflect(t *testing.T) {
+
+	lower := NewPlane()
+	m := lower.GetMaterial()
+	m.Reflective = 1
+	lower.SetMaterial(m)
+	lower.SetTransform(calc.NewTranslation(0, -1, 0))
+
+	upper := NewPlane()
+	m2 := upper.GetMaterial()
+	m2.Reflective = 1
+	upper.SetMaterial(m2)
+	upper.SetTransform(calc.NewTranslation(0, 1, 0))
+
+	w := NewWorld(NewLight(calc.NewPoint(0, 0, 0), NewColor(1, 1, 1)), lower, upper)
+
+	r := NewRay(calc.NewPoint(0, 0, 0), calc.NewVector(0, 1, 0))
+
+	//回数制限を設けて、
+	//ColorAt -> ShadeHit -> ReflectedColor -> ColorAtの無限ループを防ぐ
+	w.ColorAt(r, DefaultRemaing, DefaultRemaing)
+
+	terminate := true
+	require.True(t, terminate)
+
+}
+
+func Test_Finding_n1_and_n2_at_Various_Intersections(t *testing.T) {
+	s1 := GlassSphere()
+	s1.SetTransform(calc.NewScale(2, 2, 2))
+	m1 := s1.GetMaterial()
+	m1.RefractiveIndex = 1.5
+	s1.SetMaterial(m1)
+
+	s2 := GlassSphere()
+	s2.SetTransform(calc.NewTranslation(0, 0, -0.25))
+	m2 := s2.GetMaterial()
+	m2.RefractiveIndex = 2.0
+	s2.SetMaterial(m2)
+
+	s3 := GlassSphere()
+	s3.SetTransform(calc.NewTranslation(0, 0, 0.25))
+	m3 := s3.GetMaterial()
+	m3.RefractiveIndex = 2.5
+	s3.SetMaterial(m3)
+
+	ray := NewRay(calc.NewPoint(0, 0, -4), calc.NewVector(0, 0, 1))
+
+	section1 := Intersection{
+		Time:   2,
+		Object: s1,
+	}
+	section2 := Intersection{
+		Time:   2.75,
+		Object: s2,
+	}
+	section3 := Intersection{
+		Time:   3.25,
+		Object: s3,
+	}
+	section4 := Intersection{
+		Time:   4.75,
+		Object: s2,
+	}
+	section5 := Intersection{
+		Time:   5.25,
+		Object: s3,
+	}
+	section6 := Intersection{
+		Time:   6,
+		Object: s1,
+	}
+	xs := AggregateIntersection(&section1, &section2, &section3, &section4, &section5, &section6)
+
+	for i, target := range []struct {
+		title string
+		n1    float64
+		n2    float64
+	}{
+		{
+			title: "section1",
+			n1:    1.0,
+			n2:    1.5,
+		},
+		{
+			title: "section2",
+			n1:    1.5,
+			n2:    2.0,
+		},
+		{
+			title: "section3",
+			n1:    2.0,
+			n2:    2.5,
+		},
+		{
+			title: "section4",
+			n1:    2.5,
+			n2:    2.5,
+		},
+		{
+			title: "section5",
+			n1:    2.5,
+			n2:    1.5,
+		},
+		{
+			title: "section6",
+			n1:    1.5,
+			n2:    1.0,
+		},
+	} {
+
+		t.Run(target.title, func(t *testing.T) {
+			comps, err := PrepareComputations(*xs.Intersections[i], ray, xs)
+
+			require.Nil(t, err)
+
+			require.True(t, util.FloatEqual(target.n1, comps.N1))
+			require.True(t, util.FloatEqual(target.n2, comps.N2))
+		})
+
+	}
+
+}
+
+//UnderPointを設けることでrefractedRayの原点がrayPoint(rayとObjectがぶつかる場所)と被らない
+func Test_PreComputing_Under_Point(t *testing.T) {
+	ray := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
+	shape := GlassSphere()
+	shape.SetTransform(calc.NewTranslation(0, 0, 1))
+
+	i := Intersection{5, shape}
+
+	xs := AggregateIntersection(&i)
+
+	comps, err := PrepareComputations(i, ray, xs)
+	require.Nil(t, err)
+
+	require.True(t, comps.UnderPoint[2] > util.EPSILON/2)
+	require.True(t, comps.UnderPoint[2] > comps.RayPoint[2])
+
+}
+
+func Test_Refracted_Color_On_Opaque_Surface(t *testing.T) {
+	w := DefaultWorld()
+	shape := w.Objects[0]
+
+	ray := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
+	xs := AggregateIntersection(&Intersection{4, shape}, &Intersection{6, shape})
+
+	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
+	require.Nil(t, err)
+
+	color, err := w.RefractedColor(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(NewColor(0, 0, 0), color))
+}
+
+func Test_Avoid_Infinite_Recursion_on_RefractedColor(t *testing.T) {
+	w := DefaultWorld()
+	shape := w.Objects[0]
+
+	m1 := shape.GetMaterial()
+	m1.Transparency = 1.0
+	m1.RefractiveIndex = 1.5
+	shape.SetMaterial(m1)
+
+	ray := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
+	xs := AggregateIntersection(&Intersection{4, shape}, &Intersection{6, shape})
+
+	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
+	require.Nil(t, err)
+
+	color, err := w.RefractedColor(comps, 0, 0)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(NewColor(0, 0, 0), color))
+}
+
+func Test_Refracted_Color_Under_Total_Internal_Reflection(t *testing.T) {
+	w := DefaultWorld()
+	shape := w.Objects[0]
+
+	m1 := shape.GetMaterial()
+	m1.Transparency = 1.0
+	m1.RefractiveIndex = 1.5
+	shape.SetMaterial(m1)
+
+	//rayは内側のsphereの中から出る
+	ray := NewRay(calc.NewPoint(0, 0, math.Sqrt(2)/2), calc.NewVector(0, 1, 0))
+	xs := AggregateIntersection(&Intersection{-math.Sqrt(2) / 2, shape}, &Intersection{math.Sqrt(2) / 2, shape})
+
+	//defaultWorld内で作った外側と内側のsphereで、内側のsphereから外側のsphereに至るrayの交点をみる
+	comps, err := PrepareComputations(*xs.Intersections[1], ray, xs)
+	require.Nil(t, err)
+
+	color, err := w.RefractedColor(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(NewColor(0, 0, 0), color))
+}
+
+func Test_Refracted_Color_Under_Normal_Condition(t *testing.T) {
+	w := DefaultWorld()
+	shape := w.Objects[0]
+
+	m1 := shape.GetMaterial()
+	m1.Ambient = 1.0
+	m1.RefractiveIndex = 1.0
+
+	m1.SetPattern(NewTestPattern())
+	shape.SetMaterial(m1)
+
+	shape2 := w.Objects[1]
+	m2 := shape2.GetMaterial()
+	m2.Transparency = 1.0
+	m2.RefractiveIndex = 1.5
+	shape2.SetMaterial(m2)
+
+	ray := NewRay(calc.NewPoint(0, 0, 0.1), calc.NewVector(0, 1, 0))
+	xs := AggregateIntersection(
+		&Intersection{-0.9899, shape},
+		&Intersection{-0.4899, shape2},
+		&Intersection{0.4899, shape2},
+		&Intersection{0.9899, shape},
+	)
+
+	comps, err := PrepareComputations(*xs.Intersections[2], ray, xs)
+	require.Nil(t, err)
+
+	color, err := w.RefractedColor(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	util.SetEpsilon(0.0001)
+	defer util.SetEpsilon(util.EPSILON)
+	require.True(t, colorCompare(NewColor(0, 0.99888, 0.04725), color))
+}
+
+func Test_ShadeHit_Transparent_Material(t *testing.T) {
+	w := DefaultWorld()
+	floor := NewPlane()
+	floorMaterial := floor.GetMaterial()
+	floorMaterial.Transparency = 0.5
+	floorMaterial.RefractiveIndex = 1.5
+	floor.SetMaterial(floorMaterial)
+	floor.SetTransform(calc.NewTranslation(0, -1, 0))
+
+	ball := NewSphere(1)
+	ballMaterial := ball.GetMaterial()
+	ballMaterial.Color = NewColor(1, 0, 0)
+	ballMaterial.Ambient = 0.5
+	ball.SetMaterial(ballMaterial)
+	ball.SetTransform(calc.NewTranslation(0, -3.5, -0.5))
+
+	w.Objects = []Shape{floor, ball}
+
+	ray := NewRay(calc.NewPoint(0, 0, -3), calc.NewVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
+	xs := AggregateIntersection(
+		&Intersection{math.Sqrt(2), floor},
+	)
+
+	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
+	require.Nil(t, err)
+
+	color, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(NewColor(0.93642, 0.68642, 0.68642), color))
+}
+
+func Test_ShadeHit_With_Reflective_Transparent_Marterial(t *testing.T) {
+	w := DefaultWorld()
+
+	ray := NewRay(calc.NewPoint(0, 0, -3), calc.NewVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
+	floor := NewPlane()
+	floorMaterial := floor.GetMaterial()
+	floorMaterial.Reflective = 0.5
+	floorMaterial.Transparency = 0.5
+	floorMaterial.RefractiveIndex = 1.5
+	floor.SetMaterial(floorMaterial)
+	floor.SetTransform(calc.NewTranslation(0, -1, 0))
+
+	ball := NewSphere(1)
+	ballMaterial := ball.GetMaterial()
+	ballMaterial.Color = NewColor(1, 0, 0)
+	ballMaterial.Ambient = 0.5
+	ball.SetMaterial(ballMaterial)
+	ball.SetTransform(calc.NewTranslation(0, -3.5, -0.5))
+
+	w.AddObjects(floor, ball)
+
+	xs := AggregateIntersection(
+		&Intersection{math.Sqrt(2), floor},
+	)
+
+	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
+	require.Nil(t, err)
+
+	color, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
+	require.Nil(t, err)
+
+	require.True(t, colorCompare(NewColor(0.93391, 0.69643, 0.69243), color))
 }
