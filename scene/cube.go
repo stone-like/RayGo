@@ -43,7 +43,7 @@ func (c Cube) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
 func calcTminAndTmax(tminNumerator, tmaxNumerator, directionComponent float64) (float64, float64) {
 
 	//divisionByZero対策
-	if math.Abs(directionComponent) < util.EPSILON {
+	if util.IsNearlyEqualZero(directionComponent) {
 		return tminNumerator * math.Inf(0), tmaxNumerator * math.Inf(0)
 	}
 

@@ -21,3 +21,13 @@ func SetEpsilon(num float64) {
 }
 
 var FloatComparer = cmp.Comparer(FloatEqual)
+
+func IsNearlyEqualZero(num float64) bool {
+	if math.Abs(num) < EPSILON {
+		return true
+	}
+
+	return false
+}
+
+var Inf = math.Inf(1)
