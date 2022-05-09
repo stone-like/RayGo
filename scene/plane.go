@@ -11,6 +11,8 @@ type Plane struct {
 	*BaseShape
 }
 
+var _ Shape = Plane{}
+
 func NewPlane() Plane {
 	return Plane{
 		NewBaseShape(),

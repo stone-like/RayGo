@@ -12,17 +12,23 @@ type Shape interface {
 	SetMaterial(m *Material)
 	GetTransform() calc.Mat4x4
 	SetTransform(mat calc.Mat4x4)
+	GetParent() Shape //parentはそのshapeが属するGroupを表す
+	SetParent(s Shape)
+	WorldToObject(point calc.Tuple4) (calc.Tuple4, error)
+	NormalToWorld(normal_vec calc.Tuple4) (calc.Tuple4, error)
 }
 
 type BaseShape struct {
 	Transform calc.Mat4x4
 	Material  *Material
+	Parent    Shape
 }
 
 func NewBaseShape() *BaseShape {
 	return &BaseShape{
 		Transform: calc.Ident4x4,
 		Material:  DefaultMaterial(),
+		Parent:    nil,
 	}
 }
 
@@ -32,6 +38,14 @@ func (b *BaseShape) GetTransform() calc.Mat4x4 {
 
 func (b *BaseShape) SetTransform(mat calc.Mat4x4) {
 	b.Transform = mat
+}
+
+func (b *BaseShape) GetParent() Shape {
+	return b.Parent
+}
+
+func (b *BaseShape) SetParent(s Shape) {
+	b.Parent = s
 }
 
 type CalcLocalNormal func(localPoint calc.Tuple4) calc.Tuple4
@@ -51,6 +65,34 @@ func (base *BaseShape) ShapeNormalAt(worldPoint calc.Tuple4, calcLocalNormal Cal
 	worldNormal[3] = 0
 
 	return worldNormal.Normalize(), nil
+
+	// local_point, err := base.WorldToObject(worldPoint)
+	// if err != nil {
+	// 	return calc.Tuple4{}, err
+	// }
+	// local_normal := calcLocalNormal(local_point)
+	// return base.NormalToWorld(local_normal)
+}
+
+func (base *BaseShape) NormalToWorld(normal_vec calc.Tuple4) (calc.Tuple4, error) {
+	invTrans, err := base.GetTransform().Inverse()
+	if err != nil {
+		return calc.Tuple4{}, err
+	}
+
+	worldNormal := invTrans.Transpose().MulByTuple(normal_vec)
+	worldNormal[3] = 0
+	worldNormal = worldNormal.Normalize()
+
+	if base.GetParent() != nil {
+		worldNormal, err = base.GetParent().NormalToWorld(worldNormal)
+		if err != nil {
+			return calc.Tuple4{}, err
+		}
+	}
+
+	return worldNormal, nil
+
 }
 
 type CalcLocalIntersect func(localRay Ray) (Intersections, error)
@@ -64,6 +106,29 @@ func (base *BaseShape) ShapeIntersect(r Ray, localIntersect CalcLocalIntersect) 
 	r = r.Transform(invTrans)
 
 	return localIntersect(r)
+}
+
+//子から親に向かってWorldToObjectを計算していく
+func (base *BaseShape) WorldToObject(p calc.Tuple4) (calc.Tuple4, error) {
+
+	point := p
+
+	if base.GetParent() != nil {
+		inversedPoint, err := base.GetParent().WorldToObject(point)
+		if err != nil {
+			return calc.Tuple4{}, err
+		}
+
+		point = inversedPoint
+	}
+
+	transInv, err := base.GetTransform().Inverse()
+
+	if err != nil {
+		return calc.Tuple4{}, err
+	}
+
+	return transInv.MulByTuple(point), nil
 }
 
 type Intersection struct {

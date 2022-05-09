@@ -231,6 +231,8 @@ func Test_Reflected_Color_For_NonReflective_Material(t *testing.T) {
 	require.True(t, colorCompare(NewColor(0, 0, 0), color))
 }
 
+//packageTestだとcolorの計算がずれている...fileTestとか単体で動かすときは計算あっているのでロジック自体は問題ないはず
+//package間で何かが起こっている
 func Test_Reflected_Color_For_Reflective_Material(t *testing.T) {
 	w := DefaultWorld()
 	r := NewRay(calc.NewPoint(0, 0, -3), calc.NewVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
