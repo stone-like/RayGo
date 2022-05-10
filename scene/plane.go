@@ -29,7 +29,7 @@ func (p Plane) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
 
 func (p Plane) calcLocalIntersect(r Ray) (Intersections, error) {
 	//rayのy要素がEPSILON以下ならxz平面に広がるだけのPlaneとは交差しない
-	if math.Abs(r.Direction[1]) < util.EPSILON {
+	if math.Abs(r.Direction[1]) < util.DefaultEpsilon {
 		return Intersections{}, nil
 	}
 

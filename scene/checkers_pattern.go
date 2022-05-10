@@ -28,13 +28,13 @@ func (cp CheckersPattern) PatternAt(point calc.Tuple4) Color {
 	var y float64
 	var z float64
 
-	if math.Abs(point[0]) > util.EPSILON {
+	if math.Abs(point[0]) > util.DefaultEpsilon {
 		x = point[0]
 	}
-	if math.Abs(point[1]) > util.EPSILON {
+	if math.Abs(point[1]) > util.DefaultEpsilon {
 		y = point[1]
 	}
-	if math.Abs(point[2]) > util.EPSILON {
+	if math.Abs(point[2]) > util.DefaultEpsilon {
 		z = point[2]
 	}
 

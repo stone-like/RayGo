@@ -187,7 +187,7 @@ func Test_Hit_OverPoint(t *testing.T) {
 	comps, err := PrepareComputations(i, ray, Intersections{})
 	require.Nil(t, err)
 
-	require.True(t, comps.OverPoint[2] < -(util.EPSILON/2))
+	require.True(t, comps.OverPoint[2] < -(util.DefaultEpsilon/2))
 	require.True(t, comps.RayPoint[2] > comps.OverPoint[2])
 
 }
@@ -250,7 +250,7 @@ func Test_Reflected_Color_For_Reflective_Material(t *testing.T) {
 	require.Nil(t, err)
 
 	util.SetEpsilon(0.0001)
-	defer util.SetEpsilon(util.EPSILON)
+	defer util.SetEpsilon(util.DefaultEpsilon)
 	require.True(t, colorCompare(NewColor(0.19032, 0.2379, 0.14274), color))
 
 }
@@ -272,7 +272,7 @@ func Test_Shade_Hit_For_Reflective_Material(t *testing.T) {
 	require.Nil(t, err)
 
 	util.SetEpsilon(0.0001)
-	defer util.SetEpsilon(util.EPSILON)
+	defer util.SetEpsilon(util.DefaultEpsilon)
 	require.True(t, colorCompare(NewColor(0.87677, 0.92436, 0.82918), color))
 
 }
@@ -414,7 +414,7 @@ func Test_PreComputing_Under_Point(t *testing.T) {
 	comps, err := PrepareComputations(i, ray, xs)
 	require.Nil(t, err)
 
-	require.True(t, comps.UnderPoint[2] > util.EPSILON/2)
+	require.True(t, comps.UnderPoint[2] > util.DefaultEpsilon/2)
 	require.True(t, comps.UnderPoint[2] > comps.RayPoint[2])
 
 }
@@ -511,7 +511,7 @@ func Test_Refracted_Color_Under_Normal_Condition(t *testing.T) {
 	require.Nil(t, err)
 
 	util.SetEpsilon(0.0001)
-	defer util.SetEpsilon(util.EPSILON)
+	defer util.SetEpsilon(util.DefaultEpsilon)
 	require.True(t, colorCompare(NewColor(0, 0.99888, 0.04725), color))
 }
 

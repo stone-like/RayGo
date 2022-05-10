@@ -113,7 +113,7 @@ func Test_Converting_Normal_From_Object_To_WorldSpace(t *testing.T) {
 	require.Nil(t, err)
 
 	util.SetEpsilon(0.001)
-	defer util.SetEpsilon(util.EPSILON)
+	defer util.SetEpsilon(util.DefaultEpsilon)
 	require.True(t, calc.TupleCompare(calc.NewVector(0.2857, 0.4286, -0.8571), p))
 
 }

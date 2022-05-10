@@ -130,8 +130,8 @@ func PrepareComputations(intersection Intersection, ray Ray, xs Intersections) (
 	reflect_vec := calc.Reflect(ray.Direction, normal_vec)
 
 	//shadow用にOverPointを作る,normal方向に微小に↓にずらしたものがoverpoint
-	over_point := calc.AddTuple(ray_point, calc.MulTupleByScalar(util.EPSILON, normal_vec))
-	under_point := calc.SubTuple(ray_point, calc.MulTupleByScalar(util.EPSILON, normal_vec))
+	over_point := calc.AddTuple(ray_point, calc.MulTupleByScalar(util.DefaultEpsilon, normal_vec))
+	under_point := calc.SubTuple(ray_point, calc.MulTupleByScalar(util.DefaultEpsilon, normal_vec))
 
 	n1, n2 := findN1AndN2(xs, intersection)
 

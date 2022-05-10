@@ -71,11 +71,11 @@ func (c Cone) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
 	//上面と下面のNormal
 	y := localPoint[1]
 	//上面
-	if dist < 1 && y >= c.Max-util.EPSILON {
+	if dist < 1 && y >= c.Max-util.DefaultEpsilon {
 		return calc.NewVector(0, 1, 0)
 	}
 	//下面
-	if dist < 1 && y <= c.Min+util.EPSILON {
+	if dist < 1 && y <= c.Min+util.DefaultEpsilon {
 		return calc.NewVector(0, -1, 0)
 	}
 
