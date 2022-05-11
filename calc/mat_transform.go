@@ -59,3 +59,13 @@ func NewShearing(xtoY, xToZ, yToX, yToZ, zToX, zToY float64) Mat4x4 {
 		{0, 0, 0, 1},
 	}
 }
+
+func MulMatMulti(mats ...Mat4x4) Mat4x4 {
+
+	ret := Ident4x4
+	for _, mat := range mats {
+		ret = Mat4x4(ret).MulByMat4x4(mat)
+	}
+
+	return ret
+}
