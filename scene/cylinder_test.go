@@ -108,7 +108,7 @@ func Test_Normal_On_Cylinder(t *testing.T) {
 	} {
 		t.Run(target.title, func(t *testing.T) {
 
-			normal := c.calcLocalNormal(target.point)
+			normal := c.calcLocalNormal(target.point, Intersection{})
 			require.True(t, calc.TupleCompare(target.normal, normal))
 		})
 	}
@@ -251,7 +251,7 @@ func Test_Normal_On_capped_cylinder(t *testing.T) {
 	} {
 		t.Run(target.title, func(t *testing.T) {
 
-			normal := c.calcLocalNormal(target.point)
+			normal := c.calcLocalNormal(target.point, Intersection{})
 			require.True(t, calc.TupleCompare(target.normal, normal))
 		})
 	}

@@ -7,7 +7,7 @@ import (
 
 type Shape interface {
 	Intersect(r Ray) (Intersections, error)
-	NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error)
+	NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error)
 	GetMaterial() *Material
 	SetMaterial(m *Material)
 	GetTransform() calc.Mat4x4
@@ -48,17 +48,17 @@ func (b *BaseShape) SetParent(s Shape) {
 	b.Parent = s
 }
 
-type CalcLocalNormal func(localPoint calc.Tuple4) calc.Tuple4
+type CalcLocalNormal func(localPoint calc.Tuple4, hit Intersection) calc.Tuple4
 
 //各shapeごとにnormalだったりintersectを求める方法が違うのでそこはfuncで引数経由で渡せばいい
-func (base *BaseShape) ShapeNormalAt(worldPoint calc.Tuple4, calcLocalNormal CalcLocalNormal) (calc.Tuple4, error) {
+func (base *BaseShape) ShapeNormalAt(worldPoint calc.Tuple4, hit Intersection, calcLocalNormal CalcLocalNormal) (calc.Tuple4, error) {
 	invTrans, err := base.GetTransform().Inverse()
 	if err != nil {
 		return calc.Tuple4{}, err
 	}
 
 	localPoint := invTrans.MulByTuple(worldPoint)
-	localNormal := calcLocalNormal(localPoint)
+	localNormal := calcLocalNormal(localPoint, hit)
 
 	//objectNormal -> worldNormalでなぜinverse->TransposeがいるかはPDFに記載
 	worldNormal := invTrans.Transpose().MulByTuple(localNormal)
@@ -131,9 +131,12 @@ func (base *BaseShape) WorldToObject(p calc.Tuple4) (calc.Tuple4, error) {
 	return transInv.MulByTuple(point), nil
 }
 
+//U,VはSmoothTriangleでのみ使用、それ以外のShapeでは0,0のdefault値のまま
 type Intersection struct {
 	Time   float64
 	Object Shape
+	U      float64
+	V      float64
 }
 
 type Intersections struct {

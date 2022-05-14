@@ -28,12 +28,12 @@ func (g *Group) AddChildren(ss ...Shape) {
 	}
 }
 
-func (g *Group) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
+func (g *Group) calcLocalNormal(localPoint calc.Tuple4, hit Intersection) calc.Tuple4 {
 	return calc.Tuple4{}
 }
 
-func (g *Group) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
-	return g.ShapeNormalAt(worldPoint, g.calcLocalNormal)
+func (g *Group) NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error) {
+	return g.ShapeNormalAt(worldPoint, hit, g.calcLocalNormal)
 }
 
 func (g *Group) calcLocalIntersect(r Ray) (Intersections, error) {

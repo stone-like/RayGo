@@ -222,7 +222,7 @@ func Test_Reflected_Color_For_NonReflective_Material(t *testing.T) {
 	m.Ambient = 1
 	shape.SetMaterial(m)
 
-	i := Intersection{1, shape}
+	i := Intersection{1, shape, 0, 0}
 	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 	color, err := w.ReflectedColor(comps, DefaultRemaing, DefaultRemaing)
@@ -243,7 +243,7 @@ func Test_Reflected_Color_For_Reflective_Material(t *testing.T) {
 	shape.SetMaterial(m)
 	shape.SetTransform(calc.NewTranslation(0, -1, 0))
 
-	i := Intersection{math.Sqrt(2), shape}
+	i := Intersection{math.Sqrt(2), shape, 0, 0}
 	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 	color, err := w.ReflectedColor(comps, DefaultRemaing, DefaultRemaing)
@@ -265,7 +265,7 @@ func Test_Shade_Hit_For_Reflective_Material(t *testing.T) {
 	shape.SetMaterial(m)
 	shape.SetTransform(calc.NewTranslation(0, -1, 0))
 
-	i := Intersection{math.Sqrt(2), shape}
+	i := Intersection{math.Sqrt(2), shape, 0, 0}
 	comps, err := PrepareComputations(i, r, Intersections{})
 	require.Nil(t, err)
 	color, err := w.ShadeHit(comps, DefaultRemaing, DefaultRemaing)
@@ -407,7 +407,7 @@ func Test_PreComputing_Under_Point(t *testing.T) {
 	shape := GlassSphere()
 	shape.SetTransform(calc.NewTranslation(0, 0, 1))
 
-	i := Intersection{5, shape}
+	i := Intersection{5, shape, 0, 0}
 
 	xs := AggregateIntersection(&i)
 
@@ -424,7 +424,7 @@ func Test_Refracted_Color_On_Opaque_Surface(t *testing.T) {
 	shape := w.Objects[0]
 
 	ray := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
-	xs := AggregateIntersection(&Intersection{4, shape}, &Intersection{6, shape})
+	xs := AggregateIntersection(&Intersection{4, shape, 0, 0}, &Intersection{6, shape, 0, 0})
 
 	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
 	require.Nil(t, err)
@@ -445,7 +445,7 @@ func Test_Avoid_Infinite_Recursion_on_RefractedColor(t *testing.T) {
 	shape.SetMaterial(m1)
 
 	ray := NewRay(calc.NewPoint(0, 0, -5), calc.NewVector(0, 0, 1))
-	xs := AggregateIntersection(&Intersection{4, shape}, &Intersection{6, shape})
+	xs := AggregateIntersection(&Intersection{4, shape, 0, 0}, &Intersection{6, shape, 0, 0})
 
 	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
 	require.Nil(t, err)
@@ -467,7 +467,7 @@ func Test_Refracted_Color_Under_Total_Internal_Reflection(t *testing.T) {
 
 	//rayは内側のsphereの中から出る
 	ray := NewRay(calc.NewPoint(0, 0, math.Sqrt(2)/2), calc.NewVector(0, 1, 0))
-	xs := AggregateIntersection(&Intersection{-math.Sqrt(2) / 2, shape}, &Intersection{math.Sqrt(2) / 2, shape})
+	xs := AggregateIntersection(&Intersection{-math.Sqrt(2) / 2, shape, 0, 0}, &Intersection{math.Sqrt(2) / 2, shape, 0, 0})
 
 	//defaultWorld内で作った外側と内側のsphereで、内側のsphereから外側のsphereに至るrayの交点をみる
 	comps, err := PrepareComputations(*xs.Intersections[1], ray, xs)
@@ -498,10 +498,10 @@ func Test_Refracted_Color_Under_Normal_Condition(t *testing.T) {
 
 	ray := NewRay(calc.NewPoint(0, 0, 0.1), calc.NewVector(0, 1, 0))
 	xs := AggregateIntersection(
-		&Intersection{-0.9899, shape},
-		&Intersection{-0.4899, shape2},
-		&Intersection{0.4899, shape2},
-		&Intersection{0.9899, shape},
+		&Intersection{-0.9899, shape, 0, 0},
+		&Intersection{-0.4899, shape2, 0, 0},
+		&Intersection{0.4899, shape2, 0, 0},
+		&Intersection{0.9899, shape, 0, 0},
 	)
 
 	comps, err := PrepareComputations(*xs.Intersections[2], ray, xs)
@@ -535,7 +535,7 @@ func Test_ShadeHit_Transparent_Material(t *testing.T) {
 
 	ray := NewRay(calc.NewPoint(0, 0, -3), calc.NewVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
 	xs := AggregateIntersection(
-		&Intersection{math.Sqrt(2), floor},
+		&Intersection{math.Sqrt(2), floor, 0, 0},
 	)
 
 	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)
@@ -569,7 +569,7 @@ func Test_ShadeHit_With_Reflective_Transparent_Marterial(t *testing.T) {
 	w.AddObjects(floor, ball)
 
 	xs := AggregateIntersection(
-		&Intersection{math.Sqrt(2), floor},
+		&Intersection{math.Sqrt(2), floor, 0, 0},
 	)
 
 	comps, err := PrepareComputations(*xs.Intersections[0], ray, xs)

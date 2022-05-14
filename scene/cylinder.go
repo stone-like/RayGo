@@ -73,7 +73,7 @@ func NewCyliner(options ...Option) Cyliner {
 
 }
 
-func (c Cyliner) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
+func (c Cyliner) calcLocalNormal(localPoint calc.Tuple4, hit Intersection) calc.Tuple4 {
 
 	dist := math.Pow(localPoint[0], 2) + math.Pow(localPoint[2], 2)
 
@@ -93,8 +93,8 @@ func (c Cyliner) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
 
 }
 
-func (c Cyliner) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
-	return c.ShapeNormalAt(worldPoint, c.calcLocalNormal)
+func (c Cyliner) NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error) {
+	return c.ShapeNormalAt(worldPoint, hit, c.calcLocalNormal)
 }
 
 func calcT0AndT1(a, b, ans float64) (float64, float64) {

@@ -18,7 +18,7 @@ func NewCube() Cube {
 	}
 }
 
-func (c Cube) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
+func (c Cube) calcLocalNormal(localPoint calc.Tuple4, hit Intersection) calc.Tuple4 {
 	x := math.Abs(localPoint[0])
 	y := math.Abs(localPoint[1])
 	z := math.Abs(localPoint[2])
@@ -36,8 +36,8 @@ func (c Cube) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
 	return calc.NewVector(0, 0, localPoint[2])
 }
 
-func (c Cube) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
-	return c.ShapeNormalAt(worldPoint, c.calcLocalNormal)
+func (c Cube) NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error) {
+	return c.ShapeNormalAt(worldPoint, hit, c.calcLocalNormal)
 }
 
 func calcTminAndTmax(tminNumerator, tmaxNumerator, directionComponent float64) (float64, float64) {

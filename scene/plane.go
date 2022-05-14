@@ -19,12 +19,12 @@ func NewPlane() Plane {
 	}
 }
 
-func (p Plane) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
+func (p Plane) calcLocalNormal(localPoint calc.Tuple4, hit Intersection) calc.Tuple4 {
 	return calc.NewVector(0, 1, 0)
 }
 
-func (p Plane) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
-	return p.ShapeNormalAt(worldPoint, p.calcLocalNormal)
+func (p Plane) NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error) {
+	return p.ShapeNormalAt(worldPoint, hit, p.calcLocalNormal)
 }
 
 func (p Plane) calcLocalIntersect(r Ray) (Intersections, error) {

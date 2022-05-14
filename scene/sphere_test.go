@@ -35,7 +35,7 @@ func Test_Normal(t *testing.T) {
 			calc.NewVector(math.Sqrt(3)/3, math.Sqrt(3)/3, math.Sqrt(3)/3)},
 	} {
 
-		n, err := s.NormalAt(target.point)
+		n, err := s.NormalAt(target.point, Intersection{})
 
 		require.Nil(t, err)
 		require.Equal(t, target.ans, n)
@@ -46,7 +46,7 @@ func Test_Normal_On_Translated_Sphere(t *testing.T) {
 	s := NewSphere(1)
 	s.SetTransform(calc.NewTranslation(0, 1, 0))
 
-	n, err := s.NormalAt(calc.NewPoint(0, 1.70711, -0.70711))
+	n, err := s.NormalAt(calc.NewPoint(0, 1.70711, -0.70711), Intersection{})
 	require.Nil(t, err)
 
 	require.True(t, calc.TupleCompare(calc.NewVector(0, 0.70711, -0.70711), n))
@@ -58,7 +58,7 @@ func Test_Normal_On_Transformed_Sphere(t *testing.T) {
 	trans := calc.NewScale(1, 0.5, 1).MulByMat4x4(calc.NewRotateZ(math.Pi / 5))
 	s.SetTransform(trans)
 
-	n, err := s.NormalAt(calc.NewPoint(0, math.Sqrt(2)/2, -math.Sqrt(2)/2))
+	n, err := s.NormalAt(calc.NewPoint(0, math.Sqrt(2)/2, -math.Sqrt(2)/2), Intersection{})
 	require.Nil(t, err)
 
 	require.True(t, calc.TupleCompare(calc.NewVector(0, 0.97014, -0.24254), n))
@@ -88,7 +88,7 @@ func Test_PreComputing_Reflection_Vector(t *testing.T) {
 
 	r := NewRay(calc.NewPoint(0, 1, -1), calc.NewVector(0, -math.Sqrt(2)/2, -math.Sqrt(2)/2))
 
-	i := Intersection{math.Sqrt(2), shape}
+	i := Intersection{math.Sqrt(2), shape, 0, 0}
 
 	comps, err := PrepareComputations(i, r, Intersections{})
 

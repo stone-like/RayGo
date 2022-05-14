@@ -113,7 +113,7 @@ func PrepareComputations(intersection Intersection, ray Ray, xs Intersections) (
 	obj := intersection.Object
 	ray_point := ray.Position(t)
 	eye_vec := calc.NegTuple(ray.Direction)
-	normal_vec, err := obj.NormalAt(ray_point)
+	normal_vec, err := obj.NormalAt(ray_point, intersection)
 
 	if err != nil {
 		return PreComps{}, err

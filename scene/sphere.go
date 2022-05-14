@@ -28,12 +28,12 @@ func (s Sphere) GetIntersection(time float64) *Intersection {
 	}
 }
 
-func (s Sphere) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
+func (s Sphere) calcLocalNormal(localPoint calc.Tuple4, hit Intersection) calc.Tuple4 {
 	return calc.SubTuple(localPoint, calc.NewPoint(0, 0, 0))
 }
 
-func (s Sphere) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
-	return s.ShapeNormalAt(worldPoint, s.calcLocalNormal)
+func (s Sphere) NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error) {
+	return s.ShapeNormalAt(worldPoint, hit, s.calcLocalNormal)
 }
 
 func (s Sphere) calcLocalIntersect(r Ray) (Intersections, error) {

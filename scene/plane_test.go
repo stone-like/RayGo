@@ -10,9 +10,9 @@ import (
 func TestPlaneNormalAt(t *testing.T) {
 	p := NewPlane()
 
-	require.True(t, calc.TupleCompare(calc.NewVector(0, 1, 0), p.calcLocalNormal(calc.NewPoint(0, 0, 0))))
-	require.True(t, calc.TupleCompare(calc.NewVector(0, 1, 0), p.calcLocalNormal(calc.NewPoint(10, 0, -10))))
-	require.True(t, calc.TupleCompare(calc.NewVector(0, 1, 0), p.calcLocalNormal(calc.NewPoint(-5, 0, 150))))
+	require.True(t, calc.TupleCompare(calc.NewVector(0, 1, 0), p.calcLocalNormal(calc.NewPoint(0, 0, 0), Intersection{})))
+	require.True(t, calc.TupleCompare(calc.NewVector(0, 1, 0), p.calcLocalNormal(calc.NewPoint(10, 0, -10), Intersection{})))
+	require.True(t, calc.TupleCompare(calc.NewVector(0, 1, 0), p.calcLocalNormal(calc.NewPoint(-5, 0, 150), Intersection{})))
 
 }
 

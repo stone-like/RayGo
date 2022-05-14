@@ -17,10 +17,14 @@ func Test_Schlick_Approximation_Under_Total_Internal_Reflection(t *testing.T) {
 		&Intersection{
 			-math.Sqrt(2) / 2,
 			shape,
+			0,
+			0,
 		},
 		&Intersection{
 			math.Sqrt(2) / 2,
 			shape,
+			0,
+			0,
 		},
 	)
 
@@ -38,10 +42,14 @@ func Test_Schlick_Approximation_Under_Perpendicular_Angle(t *testing.T) {
 		&Intersection{
 			-1,
 			shape,
+			0,
+			0,
 		},
 		&Intersection{
 			1,
 			shape,
+			0,
+			0,
 		},
 	)
 
@@ -59,6 +67,8 @@ func Test_Schlick_Approximation_Under_Small_Angle_And_N2_Greater_Than_N1(t *test
 		&Intersection{
 			1.8589,
 			shape,
+			0,
+			0,
 		},
 	)
 

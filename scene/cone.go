@@ -64,7 +64,7 @@ func NewCone(options ...Option) Cone {
 
 }
 
-func (c Cone) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
+func (c Cone) calcLocalNormal(localPoint calc.Tuple4, hit Intersection) calc.Tuple4 {
 
 	dist := math.Pow(localPoint[0], 2) + math.Pow(localPoint[2], 2)
 
@@ -90,8 +90,8 @@ func (c Cone) calcLocalNormal(localPoint calc.Tuple4) calc.Tuple4 {
 
 }
 
-func (c Cone) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
-	return c.ShapeNormalAt(worldPoint, c.calcLocalNormal)
+func (c Cone) NormalAt(worldPoint calc.Tuple4, hit Intersection) (calc.Tuple4, error) {
+	return c.ShapeNormalAt(worldPoint, hit, c.calcLocalNormal)
 }
 
 func (c Cone) calcXs(ray Ray, ts []float64) Intersections {

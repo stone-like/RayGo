@@ -53,7 +53,7 @@ func TestChap6(t *testing.T) {
 			}
 
 			point := ray.Position(hit.Time)
-			normal_vec, err := hit.Object.NormalAt(point)
+			normal_vec, err := hit.Object.NormalAt(point, scene.Intersection{})
 			if err != nil {
 				panic("error occur!")
 			}
