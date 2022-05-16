@@ -170,17 +170,17 @@ func GenerateHit(intersections Intersections) *Intersection {
 }
 
 // type PreComps struct {
-// 	Time        float64
-// 	Object      Shape
-// 	RayPoint    calc.Tuple4
-// 	OverPoint   calc.Tuple4
-// 	UnderPoint  calc.Tuple4
-// 	EyeVec      calc.Tuple4
-// 	NormalVec   calc.Tuple4
-// 	ReflectVec  calc.Tuple4
+// 	Time    float64
+// 	Object   Shape
+// 	RayPoint  calc.Tuple4
+// 	OverPoint  calc.Tuple4
+// 	UnderPoint calc.Tuple4
+// 	EyeVec   calc.Tuple4
+// 	NormalVec  calc.Tuple4
+// 	ReflectVec calc.Tuple4
 // 	IsRayInside bool
-// 	N1          float64
-// 	N2          float64
+// 	N1     float64
+// 	N2     float64
 // }
 
 // func FindN1AndN2(xs Intersections, target Intersection) (N1, N2 float64) {
@@ -267,16 +267,16 @@ func GenerateHit(intersections Intersections) *Intersection {
 // 	n1, n2 := FindN1AndN2(xs, intersection)
 
 // 	return PreComps{
-// 		Time:        t,
-// 		Object:      obj,
-// 		RayPoint:    ray_point,
-// 		OverPoint:   over_point,
-// 		UnderPoint:  under_point,
-// 		EyeVec:      eye_vec,
-// 		NormalVec:   normal_vec,
-// 		ReflectVec:  reflect_vec,
+// 		Time:    t,
+// 		Object:   obj,
+// 		RayPoint:  ray_point,
+// 		OverPoint:  over_point,
+// 		UnderPoint: under_point,
+// 		EyeVec:   eye_vec,
+// 		NormalVec:  normal_vec,
+// 		ReflectVec: reflect_vec,
 // 		IsRayInside: IsRayInside,
-// 		N1:          n1,
-// 		N2:          n2,
+// 		N1:     n1,
+// 		N2:     n2,
 // 	}, nil
 // }

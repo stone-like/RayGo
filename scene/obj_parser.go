@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"os"
 	"rayGo/calc"
-	"rayGo/scene/files"
+	"rayGo/files"
 	"strconv"
 	"strings"
 )
@@ -235,6 +235,7 @@ func createVertice(data []float64) (calc.Tuple4, error) {
 
 func (p *Parser) parseVertice(line string) error {
 	//空白区切り
+
 	verticeComponent := strings.Split(line, " ")
 
 	if len(verticeComponent) != 4 {
@@ -319,13 +320,13 @@ func fanTriangulation(vertexData VertexData) []Shape {
 
 //こっちの場合はfanTriangulationみたいに五角形とかを想定していない...はず
 //縦に[]{
-//  verttex
-//  vertexNormal
+// verttex
+// vertexNormal
 //}と持つのではなく
 //横に
 //{
-//  []vertex
-//  []vertexNormal
+// []vertex
+// []vertexNormal
 //}とした方が取り回し良さそうなのでtest通ったらリファクタ
 func createSmoothTriangles(vertexData VertexData) []Shape {
 	one, two, three := vertexData.data[0], vertexData.data[1], vertexData.data[2]

@@ -23,10 +23,10 @@ func NewStripePattern(c1, c2 Color) StripePattern {
 
 //math.Floorは与えられたfloat64以下の最大の整数を返す
 //ex. 1.001 -> 1
-//    1 -> 1
-//    0.99 -> 0
-//   -0.1 -> -1
-//   -0.9999 -> -1
+//  1 -> 1
+//  0.99 -> 0
+//  -0.1 -> -1
+//  -0.9999 -> -1
 func (sp StripePattern) PatternAt(point calc.Tuple4) Color {
 	if int(math.Floor(point[0]))%2 == 0 {
 		return sp.Color1

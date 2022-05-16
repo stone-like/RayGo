@@ -1,4 +1,4 @@
-package main
+package chap15
 
 import (
 	"fmt"
@@ -6,9 +6,11 @@ import (
 	"os"
 	"rayGo/calc"
 	"rayGo/scene"
+	"testing"
 )
 
-func main() {
+func TestChap15(t *testing.T) {
+
 	glassfloor := scene.NewPlane()
 	//ポインタじゃないとsetが反映されないっぽい
 	glassfloorMaterial := scene.DefaultMaterial()
@@ -34,7 +36,7 @@ func main() {
 
 	world := scene.NewWorld(scene.NewLight(calc.NewPoint(-10, 10, -10), scene.NewColor(1, 1, 1)), glassfloor, teapot)
 
-	camera := scene.NewCamera(600, 900, math.Pi/3)
+	camera := scene.NewCamera(300, 450, math.Pi/3)
 	camera.Transform = scene.ViewTransform(
 		calc.NewPoint(0, 1.5, -5),
 		calc.NewPoint(-1.25, -0.7, 0),

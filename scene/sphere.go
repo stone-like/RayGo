@@ -124,17 +124,17 @@ func (s Sphere) SetMaterial(m *Material) {
 // 	t2 := ((-b + math.Sqrt(discriminant)) / (2 * a))
 
 // 	intersection1 := Intersection{
-// 		Time:   t1,
+// 		Time:  t1,
 // 		Object: s,
 // 	}
 
 // 	intersection2 := Intersection{
-// 		Time:   t2,
+// 		Time:  t2,
 // 		Object: s,
 // 	}
 
 // 	return Intersections{
-// 		Count:         2,
+// 		Count:     2,
 // 		Intersections: []*Intersection{&intersection1, &intersection2},
 // 	}, nil
 // }
