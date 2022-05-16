@@ -163,3 +163,44 @@ func Test_Convert_File_To_Group(t *testing.T) {
 	require.Equal(t, parser.Vertices[2], t2.P2)
 	require.Equal(t, parser.Vertices[3], t2.P3)
 }
+
+func Test_Parser_Vertex_Normal(t *testing.T) {
+	parser, err := ParseObj("test/vertexNormal.txt")
+	require.Nil(t, err)
+	require.Equal(t, calc.NewVector(0, 0, 1), parser.Normals[0])
+	require.Equal(t, calc.NewVector(0.707, 0, -0.707), parser.Normals[1])
+	require.Equal(t, calc.NewVector(1, 2, 3), parser.Normals[2])
+
+}
+
+func Test_Parser_Vertex_Normal_Error(t *testing.T) {
+	_, err := ParseObj("test/vertexNormalError.txt")
+	require.Equal(t, "invalid vn columns", err.Error())
+}
+
+func Test_Parser_Face_With_Normal(t *testing.T) {
+	parser, err := ParseObj("test/faceWithNormal.txt")
+	require.Nil(t, err)
+
+	g := parser.ParserGroups[0]
+
+	children := g.GetChildren()
+	require.Equal(t, 2, len(children))
+
+	t1, ok := children[0].(SmoothTriangle)
+	require.True(t, ok)
+
+	t2, ok := children[1].(SmoothTriangle)
+	require.True(t, ok)
+
+	require.Equal(t, parser.Vertices[0], t1.P1)
+	require.Equal(t, parser.Vertices[1], t1.P2)
+	require.Equal(t, parser.Vertices[2], t1.P3)
+
+	require.Equal(t, parser.Normals[2], t1.N1)
+	require.Equal(t, parser.Normals[0], t1.N2)
+	require.Equal(t, parser.Normals[1], t1.N3)
+
+	require.Equal(t, t1, t2)
+
+}
