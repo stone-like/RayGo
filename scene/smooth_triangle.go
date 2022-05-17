@@ -93,3 +93,7 @@ func (tri SmoothTriangle) GetMaterial() *Material {
 func (tri SmoothTriangle) SetMaterial(m *Material) {
 	tri.Material = m
 }
+
+func (tri SmoothTriangle) IsInclude(s Shape) bool {
+	return tri == s
+}

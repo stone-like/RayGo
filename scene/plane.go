@@ -57,3 +57,8 @@ func (p Plane) GetMaterial() *Material {
 func (p Plane) SetMaterial(m *Material) {
 	p.Material = m
 }
+
+//これがしっかり等価かチェックする
+func (p Plane) IsInclude(s Shape) bool {
+	return p == s
+}

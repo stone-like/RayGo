@@ -195,3 +195,7 @@ func (c Cyliner) GetMaterial() *Material {
 func (c Cyliner) SetMaterial(m *Material) {
 	c.Material = m
 }
+
+func (c Cyliner) IsInclude(s Shape) bool {
+	return c == s
+}

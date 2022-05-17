@@ -68,3 +68,18 @@ func (g *Group) GetMaterial() *Material {
 func (g *Group) SetMaterial(m *Material) {
 	g.Material = m
 }
+
+//childrenをrecursiveSearch
+func (g *Group) IsInclude(s Shape) bool {
+	if len(g.Children) == 0 {
+		return false
+	}
+
+	for _, child := range g.Children {
+		if child.IsInclude(s) {
+			return true
+		}
+	}
+
+	return false
+}

@@ -188,3 +188,7 @@ func (c Cone) GetMaterial() *Material {
 func (c Cone) SetMaterial(m *Material) {
 	c.Material = m
 }
+
+func (c Cone) IsInclude(s Shape) bool {
+	return c == s
+}

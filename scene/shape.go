@@ -16,6 +16,7 @@ type Shape interface {
 	SetParent(s Shape)
 	WorldToObject(point calc.Tuple4) (calc.Tuple4, error)
 	NormalToWorld(normal_vec calc.Tuple4) (calc.Tuple4, error)
+	IsInclude(s Shape) bool
 }
 
 type BaseShape struct {

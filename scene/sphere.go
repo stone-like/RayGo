@@ -81,6 +81,10 @@ func (s Sphere) SetMaterial(m *Material) {
 	s.Material = m
 }
 
+func (s Sphere) IsInclude(s2 Shape) bool {
+	return s == s2
+}
+
 // //sphere自体を動かす代わりにNormalを動かして計算
 // func (s Sphere) NormalAt(worldPoint calc.Tuple4) (calc.Tuple4, error) {
 // 	invTrans, err := s.GetTransform().Inverse()

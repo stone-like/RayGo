@@ -101,3 +101,7 @@ func (c Cube) GetMaterial() *Material {
 func (c Cube) SetMaterial(m *Material) {
 	c.Material = m
 }
+
+func (c Cube) IsInclude(s Shape) bool {
+	return c == s
+}
