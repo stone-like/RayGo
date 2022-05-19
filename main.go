@@ -8,6 +8,30 @@ import (
 	"rayGo/scene"
 )
 
+func createPacman() (scene.Shape, error) {
+	// s := scene.NewSphere(1)
+	// sMaterial := s.GetMaterial()
+	// sMaterial.Color = scene.Red
+	// s.SetMaterial(sMaterial)
+
+	cube := scene.NewCube()
+	// cube.SetTransform(calc.MulMatMulti(calc.NewRotateY(math.Pi/4), calc.NewScale(0.3, 1, 0.3), calc.NewTranslation(-0.3, 0, -0.5)))
+	cube.SetTransform(calc.MulMatMulti(calc.NewTranslation(-0.5, 0, -0.7), calc.NewRotateX(-math.Pi/6), calc.NewRotateY(-math.Pi/6), calc.NewScale(1, 1, 0.5)))
+
+	cubeMaterial := cube.GetMaterial()
+	cubeMaterial.Color = scene.NewColor(1, 1, 1)
+	cubeMaterial.Transparency = 1
+	cubeMaterial.Reflective = 1
+	cubeMaterial.Shininess = 0
+	cubeMaterial.Specular = 0
+	cubeMaterial.Diffuse = 0
+
+	cube.SetMaterial(cubeMaterial)
+
+	return cube, nil
+
+}
+
 func main() {
 	glassfloor := scene.NewPlane()
 	//ポインタじゃないとsetが反映されないっぽい
@@ -21,20 +45,18 @@ func main() {
 
 	glassfloor.SetMaterial(glassfloorMaterial)
 
-	parser, err := scene.ParseObj("teapotHigh.obj")
+	pacman, err := createPacman()
+
+	pacman.SetTransform(calc.MulMatMulti(calc.NewTranslation(0, 1, 0)))
+
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	teapot := parser.ToGroup()
-	teapot.SetTransform(
-		calc.MulMatMulti(calc.NewScale(float64(1)/10, float64(1)/10, float64(1)/10), calc.NewRotateX(-math.Pi/2), calc.NewTranslation(0, -10, 0)),
-	)
+	world := scene.NewWorld(scene.NewLight(calc.NewPoint(-10, 10, -10), scene.NewColor(1, 1, 1)), glassfloor, pacman)
 
-	world := scene.NewWorld(scene.NewLight(calc.NewPoint(-10, 10, -10), scene.NewColor(1, 1, 1)), glassfloor, teapot)
-
-	camera := scene.NewCamera(600, 900, math.Pi/3)
+	camera := scene.NewCamera(300, 450, math.Pi/3)
 	camera.Transform = scene.ViewTransform(
 		calc.NewPoint(0, 1.5, -5),
 		calc.NewPoint(-1.25, -0.7, 0),
