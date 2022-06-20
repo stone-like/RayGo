@@ -8,30 +8,6 @@ import (
 	"rayGo/scene"
 )
 
-func createPacman() (scene.Shape, error) {
-	// s := scene.NewSphere(1)
-	// sMaterial := s.GetMaterial()
-	// sMaterial.Color = scene.Red
-	// s.SetMaterial(sMaterial)
-
-	cube := scene.NewCube()
-	// cube.SetTransform(calc.MulMatMulti(calc.NewRotateY(math.Pi/4), calc.NewScale(0.3, 1, 0.3), calc.NewTranslation(-0.3, 0, -0.5)))
-	cube.SetTransform(calc.MulMatMulti(calc.NewTranslation(-0.5, 0, -0.7), calc.NewRotateX(-math.Pi/6), calc.NewRotateY(-math.Pi/6), calc.NewScale(1, 1, 0.5)))
-
-	cubeMaterial := cube.GetMaterial()
-	cubeMaterial.Color = scene.NewColor(1, 1, 1)
-	cubeMaterial.Transparency = 1
-	cubeMaterial.Reflective = 1
-	cubeMaterial.Shininess = 0
-	cubeMaterial.Specular = 0
-	cubeMaterial.Diffuse = 0
-
-	cube.SetMaterial(cubeMaterial)
-
-	return cube, nil
-
-}
-
 func main() {
 	glassfloor := scene.NewPlane()
 	//ポインタじゃないとsetが反映されないっぽい
@@ -45,18 +21,55 @@ func main() {
 
 	glassfloor.SetMaterial(glassfloorMaterial)
 
-	pacman, err := createPacman()
+	wall1 := scene.NewPlane()
+	wall1.SetTransform(calc.MulMatMulti(calc.NewTranslation(0, 0, 10), calc.NewRotateY(-math.Pi/4), calc.NewRotateX(math.Pi/2)))
+	wall1Material := scene.DefaultMaterial()
+	wall1Material.Color = scene.White
+	wall1.SetMaterial(wall1Material)
 
-	pacman.SetTransform(calc.MulMatMulti(calc.NewTranslation(0, 1, 0)))
+	wall2 := scene.NewPlane()
+	wall2.SetTransform(calc.MulMatMulti(calc.NewTranslation(0, 0, 10), calc.NewRotateY(math.Pi/4), calc.NewRotateX(math.Pi/2)))
+	wall2Material := scene.DefaultMaterial()
+	wall2Material.Color = scene.White
+	wall2.SetMaterial(wall2Material)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	middle := scene.NewSphere(1)
+	middle.SetTransform(calc.NewTranslation(-0.5, 1, 0.5))
+	middleMaterial := scene.DefaultMaterial()
+	middleMaterial.Color = scene.NewColor(1, 0, 0)
+	middleMaterial.Diffuse = 0.1
+	middleMaterial.Ambient = 0.1
+	middleMaterial.Transparency = 1.0
+	middleMaterial.RefractiveIndex = 1.5
 
-	world := scene.NewWorld(scene.NewLight(calc.NewPoint(-10, 10, -10), scene.NewColor(1, 1, 1)), glassfloor, pacman)
+	middle.SetMaterial(middleMaterial)
 
-	camera := scene.NewCamera(300, 450, math.Pi/3)
+	right := scene.NewSphere(1)
+	right.SetTransform(calc.NewTranslation(1.5, 0.5, -0.5).MulByMat4x4(calc.NewScale(0.5, 0.5, 0.5)))
+	rightMaterial := scene.DefaultMaterial()
+	rightMaterial.Color = scene.NewColor(0.5, 1, 0.1)
+	rightMaterial.Diffuse = 0.1
+	rightMaterial.Ambient = 0.1
+	rightMaterial.Transparency = 1.0
+	rightMaterial.RefractiveIndex = 1.5
+
+	right.SetMaterial(rightMaterial)
+
+	left := scene.NewSphere(1)
+	left.SetTransform(calc.NewTranslation(-1.5, 0.33, -0.75).MulByMat4x4(calc.NewScale(0.33, 0.33, 0.33)))
+	leftMaterial := scene.DefaultMaterial()
+	leftMaterial.Color = scene.Blue
+	leftMaterial.Diffuse = 0.1
+	leftMaterial.Ambient = 0.1
+	leftMaterial.Transparency = 1.0
+	leftMaterial.RefractiveIndex = 1.5
+
+	left.SetMaterial(leftMaterial)
+
+	world := scene.NewWorld(scene.NewLight(calc.NewPoint(-10, 10, -10), scene.NewColor(1, 1, 1)), glassfloor, middle, left, right, wall1, wall2)
+
+	camera := scene.NewCamera(960, 1200, math.Pi/3)
+
 	camera.Transform = scene.ViewTransform(
 		calc.NewPoint(0, 1.5, -5),
 		calc.NewPoint(-1.25, -0.7, 0),
